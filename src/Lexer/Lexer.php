@@ -47,45 +47,40 @@ class Lexer
 
     private function lexAll()
     {
+        $bufferSize = 1024;
+
         while (!feof($this->stream)) {
-            $this->buffer = fread($this->stream, 1024);
+            $this->buffer = fread($this->stream, $bufferSize);
 
-            foreach ($this->lexBuffer() as $token) {
-                yield $token;
-            }
-        }
-    }
-
-    private function lexBuffer()
-    {
-        while (!empty($this->buffer)) {
-            if (strlen($this->buffer) < 2) {
-                // TODO: fix this
-                throw new \RuntimeException("Buffer is not large enough (" . strlen($this->buffer) . " bytes) to ensure correct lexing behaviour");
-            }
-
-            $blockPosition = strpos($this->buffer, '{{');
-            if ($blockPosition === false) {
-                if (strlen($this->buffer) > 0) {
-                    yield [Tokens::T_RAW, $this->buffer];
-                    $this->consume(strlen($this->buffer));
+            while (!empty($this->buffer)) {
+                if (strlen($this->buffer) < 2) {
+                    // buffer should contain at least 2 characters, so read some more
+                    $this->buffer .= fread($this->stream, $bufferSize);
                 }
-                // no block found, break out of loop
-                break;
-            }
 
-            // consume any RAW data before the block
-            if ($blockPosition > 0) {
-                yield [Tokens::T_RAW, substr($this->buffer, 0, $blockPosition)];
-                $this->consume($blockPosition);
-            }
+                $blockPosition = strpos($this->buffer, '{{');
+                if ($blockPosition === false) {
+                    if (strlen($this->buffer) > 0) {
+                        yield [Tokens::T_RAW, $this->buffer];
+                        $this->consume(strlen($this->buffer));
+                    }
+                    // no block found, break out of loop
+                    break;
+                }
 
-            // consume the block prefix
-            $this->consume(2);
+                // consume any RAW data before the block
+                if ($blockPosition > 0) {
+                    yield [Tokens::T_RAW, substr($this->buffer, 0, $blockPosition)];
+                    $this->consume($blockPosition);
+                }
 
-            // lex it
-            foreach ($this->lexBlock() as $token) {
-                yield $token;
+                // consume the block prefix
+                $this->consume(2);
+
+                // lex it
+                foreach ($this->lexBlock() as $token) {
+                    yield $token;
+                }
             }
         }
     }
