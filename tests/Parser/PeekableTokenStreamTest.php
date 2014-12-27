@@ -26,7 +26,9 @@ class PeekableTokenStreamTest extends \PHPUnit_Framework_TestCase
         $tokenStream
             ->shouldReceive('getLine')
             ->zeroOrMoreTimes()
-            ->andReturn(0);
+            ->andReturnUsing(function () use ($tokenStream) {
+                return $tokenStream->key();
+            });
 
         $tokenStream
             ->shouldReceive('getSource')
@@ -43,9 +45,11 @@ class PeekableTokenStreamTest extends \PHPUnit_Framework_TestCase
         $peekableTokenStream = new PeekableTokenStream($tokenStream);
 
         $i = 0;
-        foreach ($peekableTokenStream as $token) {
+        foreach ($peekableTokenStream as $index => $token) {
             $this->assertLessThan(count($tokens), $i);
 
+            $this->assertEquals($i, $index);
+            $this->assertEquals($i, $peekableTokenStream->getLine());
             $this->assertEquals($tokens[$i], $token);
             if ($i + 1 < count($tokens)) {
                 $this->assertEquals($tokens[$i + 1], $peekableTokenStream->peek());
@@ -77,9 +81,21 @@ class PeekableTokenStreamTest extends \PHPUnit_Framework_TestCase
         $peekableTokenStream->rewind();
         $this->assertEquals(true, $peekableTokenStream->valid());
         $this->assertEquals('foo', $peekableTokenStream->current());
+        $this->assertEquals(0, $peekableTokenStream->key());
+        $this->assertEquals(0, $peekableTokenStream->getLine());
 
         $peekableTokenStream->next();
         $this->assertEquals(false, $peekableTokenStream->valid());
         $this->assertNull($peekableTokenStream->current());
+        $this->assertNull($peekableTokenStream->key());
+        $this->assertNull($peekableTokenStream->getLine());
+    }
+
+    public function testGetSource()
+    {
+        $tokenStream = $this->createArrayTokenStream([]);
+        $peekableTokenStream = new PeekableTokenStream($tokenStream);
+
+        $this->assertEquals('n/a', $peekableTokenStream->getSource());
     }
 }
