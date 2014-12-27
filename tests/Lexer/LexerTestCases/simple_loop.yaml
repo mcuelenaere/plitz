@@ -1,0 +1,26 @@
+message: |
+        Hi {{ name }}!
+
+        My friends are:
+        {{ BEGIN friends }}
+            * {{ name }}
+        {{ END }}
+tokens:
+    - token: T_RAW
+      text: "Hi "
+    - token: T_LITERAL
+      text: name
+    - token: T_RAW
+      text: "!\n\nMy friends are:\n"
+    - token: T_BLOCK_BEGIN
+    - token: T_LITERAL
+      text: friends
+    - token: T_RAW
+      text: "\n    * "
+    - token: T_LITERAL
+      text: name
+    - token: T_RAW
+      text: "\n"
+    - token: T_BLOCK_END
+    - token: T_RAW
+      text: "\n"
