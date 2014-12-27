@@ -17,6 +17,7 @@ class PeekableTokenStream implements \Iterator, TokenStream
 
     private $previousKey;
     private $previousToken;
+    private $previousValid;
 
     public function __construct(TokenStream $tokenStream)
     {
@@ -50,6 +51,7 @@ class PeekableTokenStream implements \Iterator, TokenStream
         if ($this->iterator->valid()) {
             $this->previousKey = $this->iterator->key();
             $this->previousToken = $this->iterator->current();
+            $this->previousValid = $this->iterator->valid();
 
             // iterate to second element
             $this->iterator->next();
@@ -64,9 +66,14 @@ class PeekableTokenStream implements \Iterator, TokenStream
         if ($this->iterator->valid()) {
             $this->previousKey = $this->iterator->key();
             $this->previousToken = $this->iterator->current();
+            $this->previousValid = $this->iterator->valid();
 
             // iterate to next element
             $this->iterator->next();
+        } else {
+            $this->previousValid = false;
+            $this->previousKey = null;
+            $this->previousToken = null;
         }
     }
 
@@ -75,7 +82,7 @@ class PeekableTokenStream implements \Iterator, TokenStream
      */
     public function valid()
     {
-        return $this->iterator->valid();
+        return $this->previousValid;
     }
 
     /**
