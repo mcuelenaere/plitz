@@ -1,0 +1,20 @@
+message: |
+        {{ ---3 != +3 }}
+        {{ !true }}
+tokens:
+    - token: T_MINUS
+    - token: T_MINUS
+    - token: T_MINUS
+    - token: T_NUMBER
+      value: 3
+    - token: T_NE
+    - token: T_PLUS
+    - token: T_NUMBER
+      value: 3
+    - token: T_RAW
+      text: "\n"
+    - token: T_NOT
+    - token: T_BOOL
+      value: true
+    - token: T_RAW
+      text: "\n"

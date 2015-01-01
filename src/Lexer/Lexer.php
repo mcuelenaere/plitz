@@ -98,13 +98,14 @@ class Lexer
             '('  => Tokens::T_OPEN_PAREN,
             ')'  => Tokens::T_CLOSE_PAREN,
 
-            '!'  => Tokens::T_NOT,
             '==' => Tokens::T_EQ,
             '!=' => Tokens::T_NE,
             '>=' => Tokens::T_GE,
             '>'  => Tokens::T_GT,
             '<=' => Tokens::T_LE,
             '<'  => Tokens::T_LT,
+
+            '!'  => Tokens::T_NOT,
         ];
 
         static $caseInsensitiveTokenMapping = [
@@ -157,9 +158,6 @@ class Lexer
                 $number = floatval($m[1]);
                 yield [Tokens::T_NUMBER, $number];
                 $this->consume(strlen($m[1]));
-            } else if (preg_match('|^([A-z0-9]+)|', $this->buffer, $m)) {
-                yield [Tokens::T_LITERAL, $m[1]];
-                $this->consume(strlen($m[1]));
             } else if (preg_match('|^(["\'])([^"\']+)\\1|', $this->buffer, $m)) {
                 yield [Tokens::T_STRING, $m[2]];
                 $this->consume(strlen($m[2]) + 2);
@@ -169,6 +167,9 @@ class Lexer
             } else if (self::startsWithCaseInsensitive('false')) {
                 yield [Tokens::T_BOOL, false];
                 $this->consume(5);
+            } else if (preg_match('|^([A-z0-9]+)|', $this->buffer, $m)) {
+                yield [Tokens::T_LITERAL, $m[1]];
+                $this->consume(strlen($m[1]));
             } else {
                 throw new LexException("Syntax error", $this->getStreamName(), $this->getLine());
             }

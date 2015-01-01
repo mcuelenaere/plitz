@@ -1,0 +1,17 @@
+message: |
+        {{ true }}
+        {{ False }}
+        {{ TRUE }}
+tokens:
+    - token: T_BOOL
+      value: true
+    - token: T_RAW
+      text: "\n"
+    - token: T_BOOL
+      value: false
+    - token: T_RAW
+      text: "\n"
+    - token: T_BOOL
+      value: true
+    - token: T_RAW
+      text: "\n"
