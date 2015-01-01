@@ -1,0 +1,20 @@
+template: |
+        {{ abc | raw }}
+        {{ def() | escape }}
+visitor:
+    - printBlock:
+        - MethodCallExpression:
+            methodName: "raw"
+            arguments:
+              - VariableExpression: {"variableName": abc}
+    - raw:
+        - "\n"
+    - printBlock:
+        - MethodCallExpression:
+            methodName: "escape"
+            arguments:
+              - MethodCallExpression:
+                  methodName: "def"
+                  arguments: []
+    - raw:
+        - "\n"

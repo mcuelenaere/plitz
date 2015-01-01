@@ -180,22 +180,37 @@ class ExpressionParser
                 $this->tokenStream->next();
             } while ($token !== Tokens::T_CLOSE_PAREN);
 
-            return new Expressions\MethodCall($name, $arguments);
+            $expression = new Expressions\MethodCall($name, $arguments);
+
+            list($token, ) = $this->tokenStream->current();
+        } else {
+            $expression = new Expressions\Variable($name);
+            while ($token === Tokens::T_ATTR_SEP) {
+                $this->tokenStream->next();
+
+                list($token, $attributeName) = $this->tokenStream->current();
+                if ($token !== Tokens::T_LITERAL) {
+                    throw ParseException::createInvalidTokenException([Tokens::T_LITERAL], $this->tokenStream);
+                }
+                $this->tokenStream->next();
+
+                $expression = new Expressions\GetAttribute($expression, $attributeName);
+
+                list($token, ) = $this->tokenStream->current();
+            }
         }
 
-        $expression = new Expressions\Variable($name);
-        while ($token === Tokens::T_ATTR_SEP) {
+        if ($token === Tokens::T_PIPE) {
+            // eat pipe token
             $this->tokenStream->next();
 
-            list($token, $attributeName) = $this->tokenStream->current();
+            list($token, $filterName) = $this->tokenStream->current();
             if ($token !== Tokens::T_LITERAL) {
                 throw ParseException::createInvalidTokenException([Tokens::T_LITERAL], $this->tokenStream);
             }
             $this->tokenStream->next();
 
-            $expression = new Expressions\GetAttribute($expression, $attributeName);
-
-            list($token, ) = $this->tokenStream->current();
+            $expression = new Expressions\MethodCall($filterName, [$expression]);
         }
 
         return $expression;

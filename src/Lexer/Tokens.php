@@ -20,6 +20,7 @@ class Tokens
     const T_CLOSE_PAREN = "T_CLOSE_PAREN";
     const T_COMMA = "T_COMMA";
     const T_ATTR_SEP = "T_ATTR_SEP";
+    const T_PIPE = "T_PIPE";
 
     const T_EQ = "T_EQ";
     const T_NE = "T_NE";
