@@ -1,0 +1,28 @@
+template: |
+        Hi {{ firstName }}!
+
+        My friends are:
+        {{ BEGIN friends }}
+            * {{ name }}
+        {{ END }}
+visitor:
+    - raw:
+        - "Hi "
+    - printBlock:
+        - VariableExpression:
+            variableName: firstName
+    - raw:
+        - "!\n\nMy friends are:\n"
+    - loopBlock:
+        - VariableExpression:
+            variableName: friends
+    - raw:
+        - "\n    * "
+    - printBlock:
+        - VariableExpression:
+            variableName: name
+    - raw:
+        - "\n"
+    - endLoopBlock:
+    - raw:
+        - "\n"
