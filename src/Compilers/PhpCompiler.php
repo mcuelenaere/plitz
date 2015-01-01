@@ -69,15 +69,31 @@ class PhpCompiler implements Visitor
         fwrite($this->output, '?>');
     }
 
+    private function canParensBeOmittedFor(Expression $expr)
+    {
+        return $expr instanceof Expressions\Scalar ||
+            $expr instanceof Expressions\MethodCall ||
+            $expr instanceof Expressions\Variable;
+    }
+
     private function expression(Expression $expr)
     {
         if ($expr instanceof Expressions\Binary) {
+            fwrite($this->output, "(");
             $this->expression($expr->getLeft());
             fwrite($this->output, " " . $expr->getOperation() . " ");
             $this->expression($expr->getRight());
+            fwrite($this->output, ")");
         } else if ($expr instanceof Expressions\Unary) {
-            fwrite($this->output, $expr->getOperation() . " ");
+            $showParens = !$this->canParensBeOmittedFor($expr->getExpression());
+            fwrite($this->output, $expr->getOperation());
+            if ($showParens) {
+                fwrite($this->output, "(");
+            }
             $this->expression($expr->getExpression());
+            if ($showParens) {
+                fwrite($this->output, ")");
+            }
         } else if ($expr instanceof Expressions\MethodCall) {
             // FIXME
             fwrite($this->output, $expr->getMethodName() . "(");
