@@ -174,10 +174,10 @@ class ExpressionParser
                     if ($token !== Tokens::T_COMMA && $token !== Tokens::T_CLOSE_PAREN) {
                         throw ParseException::createInvalidTokenException([Tokens::T_COMMA, Tokens::T_CLOSE_PAREN], $this->tokenStream);
                     }
-
-                    // eat T_COMMA or T_CLOSE_PAREN
-                    $this->tokenStream->next();
                 }
+
+                // eat T_COMMA or T_CLOSE_PAREN
+                $this->tokenStream->next();
             } while ($token !== Tokens::T_CLOSE_PAREN);
 
             return new Expressions\MethodCall($name, $arguments);
