@@ -1,0 +1,126 @@
+template: |
+        {{ 1 + 2 }}
+        {{ 3 * -4 }}
+        {{ 5 * 6 + 7 / 8 }}
+        {{ (9 + 10) >= 11 }}
+        {{ ---3 != +3 }}
+        {{ test(5 + 5, "def") != var }}
+        {{ !false == "foo" > 5 + 5 * 10 }}
+visitor:
+    - printBlock:
+        - BinaryExpression:
+            left:
+                ScalarExpression: {"value": 1}
+            right:
+                ScalarExpression: {"value": 2}
+            operation: "+"
+    - raw:
+        - "\n"
+    - printBlock:
+        - BinaryExpression:
+            left:
+                ScalarExpression: {"value": 3}
+            right:
+                UnaryExpression:
+                    expression:
+                        ScalarExpression: {"value": 4}
+                    operation: "-"
+            operation: "*"
+    - raw:
+        - "\n"
+    - printBlock:
+        - BinaryExpression:
+            left:
+                BinaryExpression:
+                    left:
+                        ScalarExpression: {"value": 5}
+                    right:
+                        ScalarExpression: {"value": 6}
+                    operation: "*"
+            right:
+                BinaryExpression:
+                    left:
+                        ScalarExpression: {"value": 7}
+                    right:
+                        ScalarExpression: {"value": 8}
+                    operation: "/"
+            operation: "+"
+    - raw:
+        - "\n"
+    - printBlock:
+        - BinaryExpression:
+            left:
+                BinaryExpression:
+                    left:
+                        ScalarExpression: {"value": 9}
+                    right:
+                        ScalarExpression: {"value": 10}
+                    operation: "+"
+            right:
+                ScalarExpression: {"value": 11}
+            operation: ">="
+    - raw:
+        - "\n"
+    - printBlock:
+        - BinaryExpression:
+            left:
+                UnaryExpression:
+                    expression:
+                        UnaryExpression:
+                            expression:
+                                UnaryExpression:
+                                    expression:
+                                        ScalarExpression: {"value": 3}
+                                    operation: "-"
+                            operation: "-"
+                    operation: "-"
+            right:
+                ScalarExpression: {"value": 3}
+            operation: "!="
+    - raw:
+        - "\n"
+    - printBlock:
+        - BinaryExpression:
+            left:
+                MethodCallExpression:
+                    methodName: "test"
+                    arguments:
+                        - BinaryExpression:
+                            left:
+                                ScalarExpression: {"value": 5}
+                            right:
+                                ScalarExpression: {"value": 5}
+                            operation: "+"
+                        - ScalarExpression: {"value": "def"}
+            right:
+                VariableExpression: {"variableName": "var"}
+            operation: "!="
+    - raw:
+        - "\n"
+    - printBlock:
+        - BinaryExpression:
+            left:
+                UnaryExpression:
+                    expression:
+                        ScalarExpression: {"value": false}
+                    operation: "!"
+            right:
+                BinaryExpression:
+                    left:
+                        ScalarExpression: {"value": "foo"}
+                    right:
+                        BinaryExpression:
+                            left:
+                                ScalarExpression: {"value": 5}
+                            right:
+                                BinaryExpression:
+                                    left:
+                                        ScalarExpression: {"value": 5}
+                                    right:
+                                        ScalarExpression: {"value": 10}
+                                    operation: "*"
+                            operation: "+"
+                    operation: ">"
+            operation: "=="
+    - raw:
+        - "\n"

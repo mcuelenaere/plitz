@@ -33,7 +33,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             } else {
                 $propertyValue = $properties[$parameter->getName()];
                 if (is_array($propertyValue)) {
-                    $propertyValue = $this->constructExpression(key($propertyValue), current($propertyValue));
+                    $propertyValue = $this->processVisitorYaml($propertyValue);
                 }
 
                 $constructorArguments[$parameter->getPosition()] = $propertyValue;
@@ -41,6 +41,21 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         }
 
         return $reflector->newInstanceArgs($constructorArguments);
+    }
+
+    private function processVisitorYaml(array $yaml)
+    {
+        if (count($yaml) === 1 && preg_match('|Expression$|', key($yaml))) {
+            return $this->constructExpression(key($yaml), current($yaml));
+        }
+
+        foreach ($yaml as $key => &$value) {
+            if (is_array($value)) {
+                $value = $this->processVisitorYaml($value);
+            }
+        }
+
+        return $yaml;
     }
 
     /**
@@ -64,24 +79,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         foreach ($expectedVisitorCalls as $visitorCall) {
             $methodName = key($visitorCall);
             $methodArgs = current($visitorCall);
-            $expectedArguments = [];
-
-            if (is_array($methodArgs)) {
-                $i = 0;
-                foreach ($methodArgs as $key => $value) {
-                    if (is_string($value)) {
-                        $expectedArguments[] = $value;
-                    } else if (is_array($value) && preg_match('|Expression$|', key($value))) {
-                        $expectedArguments[] = $this->constructExpression(key($value), current($value));
-                    }
-
-                    $i++;
-                }
-            }
 
             $expectedCallChain[] = [
                 'method' => $methodName,
-                'arguments' => $expectedArguments,
+                'arguments' => is_array($methodArgs) ? $this->processVisitorYaml($methodArgs) : [],
             ];
         }
 
