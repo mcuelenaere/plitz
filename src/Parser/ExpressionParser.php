@@ -79,15 +79,15 @@ class ExpressionParser
     {
         $left = $this->parsePrimaryExpression();
 
-        list($token, ) = $this->tokenStream->peek();
+        list($token, ) = $this->tokenStream->current();
         while (isset(self::$binaryTokens[$token]) && self::$precedences[$token] >= $precedence) {
-            $this->consumeToken();
+            $this->tokenStream->next();
 
             $operator = self::$binaryTokens[$token];
             $right = $this->parseExpression($precedence + self::$associativity[$token]);
             $left = new Expressions\Binary($left, $right, $operator);
 
-            list($token, ) = $this->tokenStream->peek();
+            list($token, ) = $this->tokenStream->current();
         }
 
         return $left;
@@ -95,22 +95,23 @@ class ExpressionParser
 
     private function parsePrimaryExpression()
     {
-        list($token, ) = $this->tokenStream->peek();
-        if ($token === Tokens::T_LITERAL) {
-            return $this->parseVariableOrMethodCallExpression();
-        }
-
-        list($token, $value) = $this->getNextToken();
+        list($token, $value) = $this->tokenStream->current();
         switch ($token) {
+            case Tokens::T_LITERAL:
+                return $this->parseVariableOrMethodCallExpression();
             case Tokens::T_NOT:
+                $this->tokenStream->next();
                 return new Expressions\Unary($this->parseExpression(), Expressions\Unary::OPERATION_NOT);
             case Tokens::T_MINUS:
+                $this->tokenStream->next();
                 return new Expressions\Unary($this->parseExpression(), Expressions\Unary::OPERATION_NEGATE);
             case Tokens::T_PLUS:
+                $this->tokenStream->next();
                 return $this->parseExpression();
             case Tokens::T_BOOL:
             case Tokens::T_STRING:
             case Tokens::T_NUMBER:
+                $this->tokenStream->next();
                 return new Expressions\Scalar($value);
             default:
                 throw ParseException::createInvalidTokenException([Tokens::T_BOOL, Tokens::T_STRING, Tokens::T_NUMBER, Tokens::T_MINUS, Tokens::T_PLUS, Tokens::T_NOT], $this->tokenStream);
@@ -122,65 +123,54 @@ class ExpressionParser
      */
     public function parseVariableOrMethodCallExpression()
     {
-        list($token, $name) = $this->getNextToken();
+        list($token, $name) = $this->tokenStream->current();
         if ($token !== Tokens::T_LITERAL) {
             throw ParseException::createInvalidTokenException([Tokens::T_LITERAL], $this->tokenStream);
         }
+        $this->tokenStream->next();
 
-        list($nextToken, ) = $this->tokenStream->peek();
+        list($token, ) = $this->tokenStream->current();
 
         // check for method call
-        if ($nextToken === Tokens::T_OPEN_PAREN) {
+        if ($token === Tokens::T_OPEN_PAREN) {
             // eat open paren
-            $this->consumeToken();
+            $this->tokenStream->next();
 
             $arguments = [];
             do {
-                list($nextToken, ) = $this->tokenStream->peek();
+                list($token, ) = $this->tokenStream->current();
 
-                if ($nextToken !== Tokens::T_CLOSE_PAREN) {
+                if ($token !== Tokens::T_CLOSE_PAREN) {
                     $arguments[] = $this->parseExpression();
 
-                    list($token, ) = $this->getNextToken();
+                    list($token, ) = $this->tokenStream->current();
                     if ($token !== Tokens::T_COMMA && $token !== Tokens::T_CLOSE_PAREN) {
                         throw ParseException::createInvalidTokenException([Tokens::T_COMMA, Tokens::T_CLOSE_PAREN], $this->tokenStream);
                     }
 
-                    $nextToken = $token;
+                    // eat T_COMMA or T_CLOSE_PAREN
+                    $this->tokenStream->next();
                 }
-            } while ($nextToken !== Tokens::T_CLOSE_PAREN);
-
-            // eat T_CLOSE_PAREN
-            $this->consumeToken();
+            } while ($token !== Tokens::T_CLOSE_PAREN);
 
             return new Expressions\MethodCall($name, $arguments);
         }
 
         $expression = new Expressions\Variable($name);
-        while ($nextToken === Tokens::T_ATTR_SEP) {
-            $this->consumeToken();
+        while ($token === Tokens::T_ATTR_SEP) {
+            $this->tokenStream->next();
 
-            list($token, $attributeName) = $this->getNextToken();
+            list($token, $attributeName) = $this->tokenStream->current();
             if ($token !== Tokens::T_LITERAL) {
                 throw ParseException::createInvalidTokenException([Tokens::T_LITERAL], $this->tokenStream);
             }
+            $this->tokenStream->next();
 
             $expression = new Expressions\GetAttribute($expression, $attributeName);
 
-            list($nextToken, ) = $this->tokenStream->peek();
+            list($token, ) = $this->tokenStream->current();
         }
 
         return $expression;
-    }
-
-    private function getNextToken()
-    {
-        $this->tokenStream->next();
-        return $this->tokenStream->current();
-    }
-
-    private function consumeToken()
-    {
-        $this->tokenStream->next();
     }
 }

@@ -39,16 +39,11 @@ class Parser
 
     private function parseStatement()
     {
-        list($nextToken, ) = $this->tokenStream->peek();
-        if ($nextToken === Tokens::T_LITERAL) {
-            $expression = $this->expressionParser->parseExpression();
-            $this->visitor->printBlock($expression);
-        }
-
-        list($token, $value) = $this->getNextToken();
+        list($token, $value) = $this->tokenStream->current();
         switch ($token) {
             case Tokens::T_RAW:
                 $this->visitor->raw($value);
+                $this->tokenStream->next();
                 break;
             case Tokens::T_BLOCK_BEGIN:
                 $this->parseLoopBlock();
@@ -58,30 +53,39 @@ class Parser
                 $this->parseIfBlock();
                 break;
             default:
-                throw ParseException::createInvalidTokenException([Tokens::T_RAW, Tokens::T_BLOCK_BEGIN, Tokens::T_BLOCK_IF, Tokens::T_BLOCK_UNLESS], $this->tokenStream);
+                // TODO: this is a bit hacky, we assume everything else is a print block!
+                $expression = $this->expressionParser->parseExpression();
+                $this->visitor->printBlock($expression);
+                break;
         }
     }
 
     private function parseLoopBlock()
     {
+        list($token, ) = $this->tokenStream->current();
+        if ($token !== Tokens::T_BLOCK_BEGIN) {
+            throw ParseException::createInvalidTokenException([Tokens::T_BLOCK_BEGIN], $this->tokenStream);
+        }
+        $this->tokenStream->next();
+
         $loopCondition = $this->expressionParser->parseVariableOrMethodCallExpression();
 
         $this->visitor->loopBlock($loopCondition);
 
         // keep parsing statements until we see a block end
-        list($nextToken, ) = $this->tokenStream->peek();
-        while ($nextToken !== Tokens::T_BLOCK_END) {
+        list($token, ) = $this->tokenStream->current();
+        while ($token !== Tokens::T_BLOCK_END) {
             $this->parseStatement();
 
-            list($nextToken, ) = $this->tokenStream->peek();
+            list($token, ) = $this->tokenStream->current();
         }
 
         // consume T_BLOCK_END
-        $this->consumeToken();
+        $this->tokenStream->next();
 
         // skip optional trailing literal
-        if ($this->tokenStream->peek()[0] === Tokens::T_LITERAL) {
-            $this->consumeToken();
+        if ($this->tokenStream->current()[0] === Tokens::T_LITERAL) {
+            $this->tokenStream->next();
         }
 
         $this->visitor->endLoopBlock();
@@ -89,7 +93,12 @@ class Parser
 
     private function parseIfBlock()
     {
-        $invertedCondition = ($this->tokenStream->current()[0] === Tokens::T_BLOCK_UNLESS);
+        list($token, ) = $this->tokenStream->current();
+        if ($token !== Tokens::T_BLOCK_IF && $token !== Tokens::T_BLOCK_UNLESS) {
+            throw ParseException::createInvalidTokenException([Tokens::T_BLOCK_IF, Tokens::T_BLOCK_UNLESS], $this->tokenStream);
+        }
+        $invertedCondition = ($token === Tokens::T_BLOCK_UNLESS);
+        $this->tokenStream->next();
 
         $condition = $this->expressionParser->parseExpression();
         if ($invertedCondition) {
@@ -99,42 +108,31 @@ class Parser
         $this->visitor->ifBlock($condition);
 
         // keep parsing statements until we see a block end
-        list($nextToken, ) = $this->tokenStream->peek();
-        while ($nextToken !== Tokens::T_BLOCK_END) {
+        list($token, ) = $this->tokenStream->current();
+        while ($token !== Tokens::T_BLOCK_END) {
             // check if we have an "else" or "else if" block
-            if ($nextToken === Tokens::T_BLOCK_ELSE) {
+            if ($token === Tokens::T_BLOCK_ELSE) {
                 $this->visitor->elseBlock();
-                $this->consumeToken();
-            } else if ($nextToken === Tokens::T_BLOCK_ELSE_IF) {
-                $this->consumeToken();
+                $this->tokenStream->next();
+            } else if ($token === Tokens::T_BLOCK_ELSE_IF) {
+                $this->tokenStream->next();
                 $condition = $this->expressionParser->parseExpression();
                 $this->visitor->elseIfBlock($condition);
             }
 
             $this->parseStatement();
 
-            list($nextToken, ) = $this->tokenStream->peek();
+            list($token, ) = $this->tokenStream->current();
         }
 
         // consume T_BLOCK_END
-        $this->consumeToken();
+        $this->tokenStream->next();
 
         // skip optional trailing literal
-        if ($this->tokenStream->peek()[0] === Tokens::T_LITERAL) {
-            $this->consumeToken();
+        if ($this->tokenStream->current()[0] === Tokens::T_LITERAL) {
+            $this->tokenStream->next();
         }
 
         $this->visitor->endIfBlock();
-    }
-
-    private function getNextToken()
-    {
-        $this->tokenStream->next();
-        return $this->tokenStream->current();
-    }
-
-    private function consumeToken()
-    {
-        $this->tokenStream->next();
     }
 }
