@@ -6,7 +6,6 @@ template: |
         {{ ---3 != +3 }}
         {{ test(5 + 5, "def") != var }}
         {{ !false == "foo" > 5 + 5 * 10 }}
-        {{ no_args_call() }}
 visitor:
     - printBlock:
         - BinaryExpression:
@@ -123,11 +122,5 @@ visitor:
                             operation: "+"
                     operation: ">"
             operation: "=="
-    - raw:
-        - "\n"
-    - printBlock:
-        - MethodCallExpression:
-            methodName: "no_args_call"
-            arguments: []
     - raw:
         - "\n"

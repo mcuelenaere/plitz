@@ -1,0 +1,30 @@
+template: |
+        {{ foo(5, "def", false, my_name) }}
+        {{ no_args_call() }}
+        {{ foo(bar()) }}
+visitor:
+    - printBlock:
+        - MethodCallExpression:
+              methodName: "foo"
+              arguments:
+                  - ScalarExpression: {"value": 5}
+                  - ScalarExpression: {"value": "def"}
+                  - ScalarExpression: {"value": false}
+                  - VariableExpression: {"variableName": "my_name"}
+    - raw:
+        - "\n"
+    - printBlock:
+        - MethodCallExpression:
+            methodName: "no_args_call"
+            arguments: []
+    - raw:
+        - "\n"
+    - printBlock:
+        - MethodCallExpression:
+              methodName: "foo"
+              arguments:
+                  - MethodCallExpression:
+                      methodName: "bar"
+                      arguments: []
+    - raw:
+        - "\n"

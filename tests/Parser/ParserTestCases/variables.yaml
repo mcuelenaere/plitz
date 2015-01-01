@@ -1,0 +1,27 @@
+template: |
+        {{ foo }}
+        {{ foo.bar }}
+        {{ foo.bar.foobar }}
+visitor:
+    - printBlock:
+        - VariableExpression:
+            variableName: "foo"
+    - raw:
+        - "\n"
+    - printBlock:
+        - GetAttributeExpression:
+            attributeName: "bar"
+            expression:
+              VariableExpression: {"variableName": "foo"}
+    - raw:
+        - "\n"
+    - printBlock:
+        - GetAttributeExpression:
+            attributeName: "foobar"
+            expression:
+              GetAttributeExpression:
+                attributeName: "bar"
+                expression:
+                  VariableExpression: {"variableName": "foo"}
+    - raw:
+        - "\n"
