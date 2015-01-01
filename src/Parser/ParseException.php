@@ -52,11 +52,13 @@ class ParseException extends \LogicException
         list($actualToken, ) = $tokenStream->current();
 
         if (count($expectedTokens) === 1) {
-            return new ParseException("Expected {$expectedTokens[0]}, but got {$actualToken} instead", $tokenStream->getSource(), $tokenStream->getLine());
+            $message = sprintf("Expected %s, but got %s instead at %s:%d", $expectedTokens[0], $actualToken, $tokenStream->getSource(), $tokenStream->getLine());
         } else if (count($expectedTokens) > 2) {
-            return new ParseException("Expected " . implode(', ', array_slice($expectedTokens, 0, count($expectedTokens) - 1)) . " or " . $expectedTokens[count($expectedTokens) - 1] . ", but got {$actualToken} instead", $tokenStream->getSource(), $tokenStream->getLine());
+            $message = sprintf("Expected %s or %s, but got %s instead at %s:%d", implode(', ', array_slice($expectedTokens, 0, count($expectedTokens) - 1)), $expectedTokens[count($expectedTokens) - 1], $actualToken, $tokenStream->getSource(), $tokenStream->getLine());
         } else {
-            return new ParseException("Expected {$expectedTokens[0]} or {$expectedTokens[1]}, but got {$actualToken} instead", $tokenStream->getSource(), $tokenStream->getLine());
+            $message = sprintf("Expected %s or %s, but got %s instead at %s:%d", $expectedTokens[0], $expectedTokens[1], $actualToken, $tokenStream->getSource(), $tokenStream->getLine());
         }
+
+        return new ParseException($message, $tokenStream->getSource(), $tokenStream->getLine());
     }
 }

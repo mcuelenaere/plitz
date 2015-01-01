@@ -41,5 +41,4 @@ class LexException extends \LogicException
     {
         return $this->templateLine;
     }
-
 }

@@ -171,7 +171,9 @@ class Lexer
                 yield [Tokens::T_LITERAL, $m[1]];
                 $this->consume(strlen($m[1]));
             } else {
-                throw new LexException("Syntax error", $this->getStreamName(), $this->getLine());
+                // TODO: improve error message
+                $message = sprintf("Syntax error at %s:%d", $this->getStreamName(), $this->getLine());
+                throw new LexException($message, $this->getStreamName(), $this->getLine());
             }
         }
     }
