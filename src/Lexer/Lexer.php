@@ -52,25 +52,25 @@ class Lexer
 
     private function lexAll()
     {
+        $this->buffer = '';
         while (!feof($this->stream)) {
-            $this->buffer = fread($this->stream, $this->bufferSize);
+            $this->buffer .= fread($this->stream, $this->bufferSize);
 
-            while (!empty($this->buffer)) {
-                if (strlen($this->buffer) < 2) {
-                    // buffer should contain at least 2 characters, so read some more
-                    $this->buffer .= fread($this->stream, $this->bufferSize);
+            while(($blockPosition = strpos($this->buffer, '{{')) === false && !feof($this->stream)) {
+                $this->buffer .= fread($this->stream, $this->bufferSize);
+            }
+
+            if ($blockPosition === false) {
+                if (!empty($this->buffer)) {
+                    yield [Tokens::T_RAW, $this->buffer];
+                    $this->consume(strlen($this->buffer));
                 }
 
-                $blockPosition = strpos($this->buffer, '{{');
-                if ($blockPosition === false) {
-                    if (strlen($this->buffer) > 0) {
-                        yield [Tokens::T_RAW, $this->buffer];
-                        $this->consume(strlen($this->buffer));
-                    }
-                    // no block found, break out of loop
-                    break;
-                }
+                // we can only be in this case when reached EOF, but do another check just to be sure
+                continue;
+            }
 
+            while ($blockPosition !== false) {
                 // consume any RAW data before the block
                 if ($blockPosition > 0) {
                     yield [Tokens::T_RAW, substr($this->buffer, 0, $blockPosition)];
@@ -80,11 +80,24 @@ class Lexer
                 // consume the block prefix
                 $this->consume(2);
 
+                // fill the buffer with the whole contents of the block
+                while(strpos($this->buffer, '}}') === false && !feof($this->stream)) {
+                    $this->buffer .= fread($this->stream, $this->bufferSize);
+                }
+
                 // lex it
                 foreach ($this->lexBlock() as $token) {
                     yield $token;
                 }
+
+                $blockPosition = strpos($this->buffer, '{{');
             }
+        }
+
+        // check if there's some remaining stuff in the buffer
+        if (!empty($this->buffer)) {
+            yield [Tokens::T_RAW, $this->buffer];
+            $this->buffer = '';
         }
     }
 
