@@ -1,0 +1,29 @@
+message: |
+    {{ IF false }}
+    {{ ELSEIF true }}
+    {{ ELSE IF true }}
+    {{ ELSE }}
+    {{ END }}
+
+flow:
+    - token: T_BLOCK_IF
+    - token: T_BOOL
+      value: false
+    - token: T_RAW
+      text: "\n"
+    - token: T_BLOCK_ELSE_IF
+    - token: T_BOOL
+      value: true
+    - token: T_RAW
+      text: "\n"
+    - token: T_BLOCK_ELSE_IF
+    - token: T_BOOL
+      value: true
+    - token: T_RAW
+      text: "\n"
+    - token: T_BLOCK_ELSE
+    - token: T_RAW
+      text: "\n"
+    - token: T_BLOCK_END
+    - token: T_RAW
+      text: "\n"

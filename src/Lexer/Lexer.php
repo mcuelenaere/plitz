@@ -139,9 +139,9 @@ class Lexer
             'BEGIN'   => Tokens::T_BLOCK_BEGIN,
             'END'     => Tokens::T_BLOCK_END,
             'IF'      => Tokens::T_BLOCK_IF,
-            'ELSE'    => Tokens::T_BLOCK_ELSE,
             'ELSE IF' => Tokens::T_BLOCK_ELSE_IF,
             'ELSEIF'  => Tokens::T_BLOCK_ELSE_IF,
+            'ELSE'    => Tokens::T_BLOCK_ELSE,
             'UNLESS'  => Tokens::T_BLOCK_UNLESS,
         ];
 
