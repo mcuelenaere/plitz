@@ -6,17 +6,22 @@ class Lexer
     private $stream;
     private $streamName;
     private $buffer;
+    private $bufferSize;
     private $cursor;
     private $line;
 
     /**
      * @param resource $stream
      * @param string $streamName
+     * @param int $bufferSize
      */
-    public function __construct($stream, $streamName = 'n/a')
+    public function __construct($stream, $streamName = 'n/a', $bufferSize = 1024)
     {
+        assert($bufferSize > 2, "Buffer size should be at least 2 bytes");
+
         $this->stream = $stream;
         $this->streamName = $streamName;
+        $this->bufferSize = $bufferSize;
         $this->cursor = 0;
         $this->line = 1;
     }
@@ -47,15 +52,13 @@ class Lexer
 
     private function lexAll()
     {
-        $bufferSize = 1024;
-
         while (!feof($this->stream)) {
-            $this->buffer = fread($this->stream, $bufferSize);
+            $this->buffer = fread($this->stream, $this->bufferSize);
 
             while (!empty($this->buffer)) {
                 if (strlen($this->buffer) < 2) {
                     // buffer should contain at least 2 characters, so read some more
-                    $this->buffer .= fread($this->stream, $bufferSize);
+                    $this->buffer .= fread($this->stream, $this->bufferSize);
                 }
 
                 $blockPosition = strpos($this->buffer, '{{');
