@@ -198,8 +198,12 @@ class Lexer
                 yield [Tokens::T_LITERAL, $m[1]];
                 $this->consume(strlen($m[1]));
             } else {
-                // TODO: improve error message
-                $message = sprintf("Syntax error at %s:%d", $this->getStreamName(), $this->getLine());
+                if (empty($this->buffer)) {
+                    $message = sprintf("Unexpected end of file at %s:%d:%d", $this->getStreamName(), $this->getLine(), $this->getColumn());
+                } else {
+                    // TODO: improve error message
+                    $message = sprintf("Syntax error at %s:%d:%d", $this->getStreamName(), $this->getLine(), $this->getColumn());
+                }
                 throw new LexException($message, $this->getStreamName(), $this->getLine(), $this->getColumn());
             }
         }

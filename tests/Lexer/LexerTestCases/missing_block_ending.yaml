@@ -1,0 +1,6 @@
+message: |
+        {{ foo
+flow:
+    - token: T_LITERAL
+      value: foo
+    - exception: Unexpected end of file at n/a:2:1
