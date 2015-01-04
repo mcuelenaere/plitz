@@ -18,7 +18,7 @@ class PeekableTokenStreamTest extends \PHPUnit_Framework_TestCase
      */
     private function createArrayTokenStream(array $tokens)
     {
-        $tokenStream = \Mockery::mock('\\Plitz\\Tests\\Lexer\\MockableTokenstream[getLine,getSource]', '\\ArrayIterator', [$tokens]);
+        $tokenStream = \Mockery::mock('\\Plitz\\Tests\\Lexer\\MockableTokenstream[getLine,getColumn,getSource]', '\\ArrayIterator', [$tokens]);
 
         $tokenStream
             ->shouldDeferMissing();
@@ -28,6 +28,13 @@ class PeekableTokenStreamTest extends \PHPUnit_Framework_TestCase
             ->zeroOrMoreTimes()
             ->andReturnUsing(function () use ($tokenStream) {
                 return $tokenStream->key();
+            });
+
+        $tokenStream
+            ->shouldReceive('getColumn')
+            ->zeroOrMoreTimes()
+            ->andReturnUsing(function () use ($tokenStream) {
+                return 1;
             });
 
         $tokenStream

@@ -14,16 +14,23 @@ class ParseException extends \LogicException
     private $templateLine;
 
     /**
+     * @var int
+     */
+    private $templateColumn;
+
+    /**
      * @param string $message
      * @param string $templateName
      * @param int $line
+     * @param int $column
      */
-    public function __construct($message, $templateName, $line)
+    public function __construct($message, $templateName, $line, $column)
     {
         parent::__construct($message);
 
         $this->templateName = $templateName;
         $this->templateLine = $line;
+        $this->templateColumn = $column;
     }
 
     /**
@@ -43,6 +50,14 @@ class ParseException extends \LogicException
     }
 
     /**
+     * @return int
+     */
+    public function getTemplateColumn()
+    {
+        return $this->templateColumn;
+    }
+
+    /**
      * @param array $expectedTokens
      * @param PeekableTokenStream $tokenStream
      * @return ParseException
@@ -59,6 +74,6 @@ class ParseException extends \LogicException
             $message = sprintf("Expected %s or %s, but got %s instead at %s:%d", $expectedTokens[0], $expectedTokens[1], $actualToken, $tokenStream->getSource(), $tokenStream->getLine());
         }
 
-        return new ParseException($message, $tokenStream->getSource(), $tokenStream->getLine());
+        return new ParseException($message, $tokenStream->getSource(), $tokenStream->getLine(), $tokenStream->getColumn());
     }
 }

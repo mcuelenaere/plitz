@@ -35,4 +35,12 @@ class LexerStream implements \IteratorAggregate, TokenStream
     {
         return $this->lexer->getLine();
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getColumn()
+    {
+        return $this->lexer->getColumn();
+    }
 }

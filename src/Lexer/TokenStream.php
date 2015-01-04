@@ -12,4 +12,9 @@ interface TokenStream extends \Traversable
      * @return int
      */
     public function getLine();
+
+    /**
+     * @return int
+     */
+    public function getColumn();
 }

@@ -8,6 +8,7 @@ class Lexer
     private $buffer;
     private $bufferSize;
     private $cursor;
+    private $column;
     private $line;
 
     /**
@@ -23,6 +24,7 @@ class Lexer
         $this->streamName = $streamName;
         $this->bufferSize = $bufferSize;
         $this->cursor = 0;
+        $this->column = 1;
         $this->line = 1;
     }
 
@@ -32,6 +34,14 @@ class Lexer
     public function getLine()
     {
         return $this->line;
+    }
+
+    /**
+     * @return int
+     */
+    public function getColumn()
+    {
+        return $this->column;
     }
 
     /**
@@ -190,7 +200,7 @@ class Lexer
             } else {
                 // TODO: improve error message
                 $message = sprintf("Syntax error at %s:%d", $this->getStreamName(), $this->getLine());
-                throw new LexException($message, $this->getStreamName(), $this->getLine());
+                throw new LexException($message, $this->getStreamName(), $this->getLine(), $this->getColumn());
             }
         }
     }
@@ -215,8 +225,14 @@ class Lexer
 
     private function consume($bytes)
     {
+        $numberOfNewlines = substr_count($this->buffer, "\n", 0, $bytes);
+        if ($numberOfNewlines > 0) {
+            $this->column = $bytes - strrpos(substr($this->buffer, 0, $bytes), "\n");
+        } else {
+            $this->column += $bytes;
+        }
         $this->cursor += $bytes;
-        $this->line += substr_count($this->buffer, "\n", 0, $bytes);
+        $this->line += $numberOfNewlines;
         $this->buffer = substr($this->buffer, $bytes);
     }
 }
