@@ -2,7 +2,7 @@ message: |
         {{ true }}
         {{ False }}
         {{ TRUE }}
-tokens:
+flow:
     - token: T_BOOL
       value: true
     - token: T_RAW

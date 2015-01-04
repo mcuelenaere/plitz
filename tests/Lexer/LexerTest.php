@@ -2,6 +2,7 @@
 namespace Plitz\Tests\Lexer;
 
 use Plitz\Lexer\Lexer;
+use Plitz\Lexer\LexException;
 use Symfony\Component\Yaml\Yaml;
 
 class LexerTest extends \PHPUnit_Framework_TestCase
@@ -30,22 +31,32 @@ class LexerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideYamlCases
      * @param string $message
-     * @param array $expectedTokens
+     * @param array $flow
      */
-    public function testYamlCases($message, array $expectedTokens)
+    public function testYamlCases($message, array $flow)
     {
         fwrite($this->stream, $message);
         fseek($this->stream, 0, SEEK_SET);
 
+        $index = 0;
         $lexStream = $this->lexer->lex();
-        foreach ($lexStream as $index => $tokenArray) {
-            list($token, $value) = $tokenArray;
+        try {
+            foreach ($lexStream as $tokenArray) {
+                list($token, $value) = $tokenArray;
 
-            $this->assertArrayHasKey($index, $expectedTokens, "Unexpected token $token found");
+                $this->assertArrayHasKey($index, $flow, "Unexpected token $token found");
 
-            $this->assertEquals($expectedTokens[$index]['token'], $token, 'Token at line ' . $lexStream->getLine() . ' was not the same as expected');
-            if (isset($expectedTokens[$index]['text'])) {
-                $this->assertEquals($expectedTokens[$index]['text'], $value, 'Value at line ' . $lexStream->getLine() . ' was not the same as expected');
+                $this->assertEquals($flow[$index]['token'], $token, 'Token at line ' . $lexStream->getLine() . ' was not the same as expected');
+                if (isset($flow[$index]['text'])) {
+                    $this->assertEquals($flow[$index]['text'], $value, 'Value at line ' . $lexStream->getLine() . ' was not the same as expected');
+                }
+                $index++;
+            }
+        } catch (LexException $ex) {
+            if (isset($flow[$index]) && isset($flow[$index]['exception'])) {
+                $this->assertEquals($flow[$index]['exception'], $ex->getMessage());
+            } else {
+                throw $ex;
             }
         }
     }
@@ -56,7 +67,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             $parsed = Yaml::parse(file_get_contents($file), true);
             yield basename($file) => [
                 $parsed['message'],
-                $parsed['tokens']
+                $parsed['flow']
             ];
         }
     }

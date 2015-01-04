@@ -5,7 +5,7 @@ message: |
         {{ BEGIN friends }}
             * {{ name }}
         {{ END }}
-tokens:
+flow:
     - token: T_RAW
       text: "Hi "
     - token: T_LITERAL

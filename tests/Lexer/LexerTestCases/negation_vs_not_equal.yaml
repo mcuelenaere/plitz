@@ -1,7 +1,7 @@
 message: |
         {{ ---3 != +3 }}
         {{ !true }}
-tokens:
+flow:
     - token: T_MINUS
     - token: T_MINUS
     - token: T_MINUS
