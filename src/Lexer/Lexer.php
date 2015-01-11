@@ -185,7 +185,7 @@ class Lexer
                 $number = floatval($m[1]);
                 yield [Tokens::T_NUMBER, $number];
                 $this->consume(strlen($m[1]));
-            } else if (preg_match('|^(["\'])([^"\']+)\\1|', $this->buffer, $m)) {
+            } else if (preg_match('|^(["\'])([^"\']*)\\1|', $this->buffer, $m)) {
                 yield [Tokens::T_STRING, $m[2]];
                 $this->consume(strlen($m[2]) + 2);
             } else if (self::startsWithCaseInsensitive('true')) {

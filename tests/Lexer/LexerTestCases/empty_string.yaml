@@ -1,0 +1,13 @@
+message: |
+    {{ "" }}
+    {{ '' }}
+
+flow:
+    - token: T_STRING
+      value: ""
+    - token: T_RAW
+      text: "\n"
+    - token: T_STRING
+      value: ""
+    - token: T_RAW
+      text: "\n"
