@@ -8,9 +8,22 @@ use Plitz\Parser\Visitor;
 class PhpCompiler implements Visitor
 {
     /**
+     * Output stream
      * @var resource
      */
-    private $output;
+    protected $output;
+
+    /**
+     * Variable name of the current context
+     * @var string
+     */
+    protected $currentContext;
+
+    /**
+     * Current context counter
+     * @var int
+     */
+    protected $contextCounter;
 
     /**
      * @param resource $stream
@@ -18,6 +31,8 @@ class PhpCompiler implements Visitor
     public function __construct($stream)
     {
         $this->output = $stream;
+        $this->contextCounter = 0;
+        $this->currentContext = 'context';
     }
 
     public function startOfStream()
@@ -63,13 +78,19 @@ class PhpCompiler implements Visitor
     {
         fwrite($this->output, '<?php foreach (');
         $this->expression($variable);
-        // FIXME
-        fwrite($this->output, ' as $context): ?>');
+
+        $this->contextCounter++;
+        $this->currentContext = ($this->contextCounter > 0 ? 'context' . $this->contextCounter : 'context');
+
+        fwrite($this->output, ' as $' . $this->currentContext . '): ?>');
     }
 
     public function endLoopBlock()
     {
         fwrite($this->output, '<?php endforeach; ?>');
+
+        $this->contextCounter--;
+        $this->currentContext = ($this->contextCounter > 0 ? 'context' . $this->contextCounter : 'context');
     }
 
     public function printBlock(Expression $value)
@@ -79,14 +100,19 @@ class PhpCompiler implements Visitor
         fwrite($this->output, '?>');
     }
 
-    private function canParensBeOmittedFor(Expression $expr)
+    protected function canParensBeOmittedFor(Expression $expr)
     {
         return $expr instanceof Expressions\Scalar ||
             $expr instanceof Expressions\MethodCall ||
             $expr instanceof Expressions\Variable;
     }
 
-    private function expression(Expression $expr)
+    protected function escapeScalar($variable)
+    {
+        return var_export($variable, true);
+    }
+
+    protected function expression(Expression $expr)
     {
         if ($expr instanceof Expressions\Binary) {
             fwrite($this->output, "(");
@@ -105,7 +131,6 @@ class PhpCompiler implements Visitor
                 fwrite($this->output, ")");
             }
         } else if ($expr instanceof Expressions\MethodCall) {
-            // FIXME
             fwrite($this->output, $expr->getMethodName() . "(");
             $arguments = $expr->getArguments();
             for ($i=0; $i < count($arguments); $i++) {
@@ -117,13 +142,11 @@ class PhpCompiler implements Visitor
             fwrite($this->output, ")");
         } else if ($expr instanceof Expressions\GetAttribute) {
             $this->expression($expr->getExpression());
-            // FIXME
-            fwrite($this->output, "['" . $expr->getAttributeName() . "']");
+            fwrite($this->output, '[' . $this->escapeScalar($expr->getAttributeName()) . ']');
         } else if ($expr instanceof Expressions\Variable) {
-            // FIXME
-            fwrite($this->output, '$context[\'' . $expr->getVariableName() . '\']');
+            fwrite($this->output, '$' . $this->currentContext . '[' . $this->escapeScalar($expr->getVariableName()) . ']');
         } else if ($expr instanceof Expressions\Scalar) {
-            fwrite($this->output, var_export($expr->getValue(), true));
+            fwrite($this->output, $this->escapeScalar($expr->getValue()));
         } else {
             throw new \LogicException("Unknown expression class " . get_class($expr));
         }
