@@ -1,0 +1,19 @@
+language: PHP
+template: |
+    Hi {{ user.name }}. These are your friends:
+    {{ BEGIN user.friends }}
+        * {{ capitalize(name) }}
+        {{ IF isOnline }}
+          -> online
+        {{ END }}
+          -> {{ age + 5 }}
+    {{ END }}
+output: |
+    Hi <?=$context['user']['name']?>. These are your friends:
+    <?php foreach ($context['user']['friends'] as $context1): ?>
+        * <?=capitalize($context1['name'])?>
+        <?php if ($context1['isOnline']): ?>
+          -> online
+        <?php endif; ?>
+          -> <?=($context1['age'] + 5)?>
+    <?php endforeach; ?>
