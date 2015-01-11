@@ -19,11 +19,22 @@ class CodeEmitter
     protected $indentationLevel = 0;
 
     /**
+     * @var string
+     */
+    protected $indentationCharacter;
+
+    /**
      * @param resource $stream
      */
     public function __construct($stream)
     {
         $this->stream = $stream;
+        $this->indentationCharacter = "\t";
+    }
+
+    public function setIdentationCharacter($char)
+    {
+        $this->indentationCharacter = $char;
     }
 
     public function indent()
@@ -46,13 +57,13 @@ class CodeEmitter
 
     public function line($text)
     {
-        $this->raw(str_repeat("\t", $this->indentationLevel) . $text . PHP_EOL);
+        $this->raw(str_repeat($this->indentationCharacter, $this->indentationLevel) . $text . PHP_EOL);
         return $this;
     }
 
     public function lineNoEnding($text)
     {
-        $this->raw(str_repeat("\t", $this->indentationLevel) . $text);
+        $this->raw(str_repeat($this->indentationCharacter, $this->indentationLevel) . $text);
         return $this;
     }
 

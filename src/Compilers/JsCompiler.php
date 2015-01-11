@@ -27,10 +27,12 @@ class JsCompiler implements Visitor
 
     /**
      * @param resource $stream
+     * @param string $indentationCharacter
      */
-    public function __construct($stream)
+    public function __construct($stream, $indentationCharacter = "\t")
     {
         $this->codeEmitter = new CodeEmitter($stream);
+        $this->codeEmitter->setIdentationCharacter($indentationCharacter);
         $this->contextCounter = 0;
         $this->currentContext = 'context';
     }
