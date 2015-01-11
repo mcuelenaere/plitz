@@ -2,6 +2,7 @@ template: |
         {{ foo }}
         {{ foo.bar }}
         {{ foo.bar.foobar }}
+        {{ $foo }}
 visitor:
     - printBlock:
         - VariableExpression:
@@ -23,5 +24,10 @@ visitor:
                 attributeName: "bar"
                 expression:
                   VariableExpression: {"variableName": "foo"}
+    - raw:
+        - "\n"
+    - printBlock:
+        - VariableExpression:
+            variableName: "foo"
     - raw:
         - "\n"

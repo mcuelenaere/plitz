@@ -194,7 +194,7 @@ class Lexer
             } else if (self::startsWithCaseInsensitive('false')) {
                 yield [Tokens::T_BOOL, false];
                 $this->consume(5);
-            } else if (preg_match('|^([A-z0-9]+)|', $this->buffer, $m)) {
+            } else if (preg_match('|^([A-z0-9$]+)|', $this->buffer, $m)) {
                 yield [Tokens::T_LITERAL, $m[1]];
                 $this->consume(strlen($m[1]));
             } else {

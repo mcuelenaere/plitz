@@ -184,6 +184,11 @@ class ExpressionParser
 
             list($token, ) = $this->tokenStream->current();
         } else {
+            // strip preceding '$' string, if present
+            if (strpos($name, '$') === 0) {
+                $name = substr($name, 1);
+            }
+
             $expression = new Expressions\Variable($name);
             while ($token === Tokens::T_ATTR_SEP) {
                 $this->tokenStream->next();

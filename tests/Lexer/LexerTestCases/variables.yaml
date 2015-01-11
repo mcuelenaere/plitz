@@ -1,0 +1,12 @@
+message: |
+        {{ foo }}
+        {{ $foo }}
+flow:
+    - token: T_LITERAL
+      value: foo
+    - token: T_RAW
+      text: "\n"
+    - token: T_LITERAL
+      value: $foo
+    - token: T_RAW
+      text: "\n"
