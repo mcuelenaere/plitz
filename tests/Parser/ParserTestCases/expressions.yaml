@@ -7,6 +7,7 @@ template: |
         {{ test(5 + 5, "def") != var }}
         {{ !false == "foo" > 5 + 5 * 10 }}
 visitor:
+    - startOfStream: []
     - printBlock:
         - BinaryExpression:
             left:
@@ -124,3 +125,4 @@ visitor:
             operation: "=="
     - raw:
         - "\n"
+    - endOfStream: []

@@ -30,11 +30,15 @@ class Parser
 
     public function parse()
     {
+        $this->visitor->startOfStream();
+
         $this->tokenStream->rewind();
 
         while ($this->tokenStream->valid()) {
             $this->parseStatement();
         }
+
+        $this->visitor->endOfStream();
     }
 
     private function parseStatement()

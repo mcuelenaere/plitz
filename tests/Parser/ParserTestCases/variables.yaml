@@ -4,6 +4,7 @@ template: |
         {{ foo.bar.foobar }}
         {{ $foo }}
 visitor:
+    - startOfStream: []
     - printBlock:
         - VariableExpression:
             variableName: "foo"
@@ -31,3 +32,4 @@ visitor:
             variableName: "foo"
     - raw:
         - "\n"
+    - endOfStream: []

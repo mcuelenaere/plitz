@@ -6,6 +6,7 @@ template: |
             * {{ name }}
         {{ END }}
 visitor:
+    - startOfStream: []
     - raw:
         - "Hi "
     - printBlock:
@@ -26,3 +27,4 @@ visitor:
     - endLoopBlock:
     - raw:
         - "\n"
+    - endOfStream: []

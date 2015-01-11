@@ -3,6 +3,9 @@ namespace Plitz\Parser;
 
 interface Visitor
 {
+    public function startOfStream();
+    public function endOfStream();
+
     public function raw($data);
 
     public function ifBlock(Expression $condition);

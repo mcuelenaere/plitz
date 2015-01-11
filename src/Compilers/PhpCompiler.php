@@ -20,6 +20,16 @@ class PhpCompiler implements Visitor
         $this->output = $stream;
     }
 
+    public function startOfStream()
+    {
+        // do nothing
+    }
+
+    public function endOfStream()
+    {
+        // do nothing
+    }
+
     public function raw($data)
     {
         fwrite($this->output, $data);

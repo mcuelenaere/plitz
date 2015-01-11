@@ -3,6 +3,7 @@ template: |
         {{ no_args_call() }}
         {{ foo(bar()) }}
 visitor:
+    - startOfStream: []
     - printBlock:
         - MethodCallExpression:
               methodName: "foo"
@@ -28,3 +29,4 @@ visitor:
                       arguments: []
     - raw:
         - "\n"
+    - endOfStream: []

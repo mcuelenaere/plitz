@@ -2,6 +2,7 @@ template: |
         {{ abc | raw }}
         {{ def() | escape }}
 visitor:
+    - startOfStream: []
     - printBlock:
         - MethodCallExpression:
             methodName: "raw"
@@ -18,3 +19,4 @@ visitor:
                   arguments: []
     - raw:
         - "\n"
+    - endOfStream: []

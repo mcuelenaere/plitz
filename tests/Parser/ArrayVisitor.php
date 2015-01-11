@@ -19,6 +19,22 @@ class ArrayVisitor implements Visitor
         return $this->calls;
     }
 
+    public function startOfStream()
+    {
+        $this->calls[] = [
+            'method' => __FUNCTION__,
+            'arguments' => func_get_args()
+        ];
+    }
+
+    public function endOfStream()
+    {
+        $this->calls[] = [
+            'method' => __FUNCTION__,
+            'arguments' => func_get_args()
+        ];
+    }
+
     public function raw($data)
     {
         $this->calls[] = [
