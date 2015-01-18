@@ -64,7 +64,7 @@ class PhpCompiler implements Visitor
 
     public function elseIfBlock(Expression $condition)
     {
-        fwrite($this->output, '<?php else if (');
+        fwrite($this->output, '<?php elseif (');
         $this->expression($condition);
         fwrite($this->output, '): ?>');
     }

@@ -5,6 +5,8 @@ template: |
         * {{ capitalize(name) }}
         {{ IF isOnline }}
           -> online
+        {{ ELSE IF !isOnline }}
+          -> offline
         {{ END }}
           -> {{ age + 5 }}
     {{ END }}
@@ -14,6 +16,8 @@ output: |
         * <?=capitalize($context1['name'])?>
         <?php if ($context1['isOnline']): ?>
           -> online
+        <?php elseif (!$context1['isOnline']): ?>
+          -> offline
         <?php endif; ?>
           -> <?=($context1['age'] + 5)?>
     <?php endforeach; ?>
