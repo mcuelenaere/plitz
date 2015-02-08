@@ -30,6 +30,8 @@ class Tokens
     const T_LE = "T_LE";
 
     const T_NOT = "T_NOT";
+    const T_AND = "T_AND";
+    const T_OR = "T_OR";
 
     const T_PLUS = "T_PLUS";
     const T_MINUS = "T_MINUS";

@@ -131,6 +131,9 @@ class Lexer
             '<=' => Tokens::T_LE,
             '<'  => Tokens::T_LT,
 
+            '&&' => Tokens::T_AND,
+            '||' => Tokens::T_OR,
+
             '!'  => Tokens::T_NOT,
             '|'  => Tokens::T_PIPE,
         ];
@@ -143,6 +146,9 @@ class Lexer
             'ELSEIF'  => Tokens::T_BLOCK_ELSE_IF,
             'ELSE'    => Tokens::T_BLOCK_ELSE,
             'UNLESS'  => Tokens::T_BLOCK_UNLESS,
+
+            'and'     => Tokens::T_AND,
+            'or'      => Tokens::T_OR,
         ];
 
         while (true) {

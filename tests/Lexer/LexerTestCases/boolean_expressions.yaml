@@ -1,0 +1,50 @@
+message: |
+        {{ true and false or false }}
+        {{ false && true || false }}
+        {{ true != (2 > 3) }}
+        {{ (3 <= 1) == false }}
+flow:
+    - token: T_BOOL
+      value: true
+    - token: T_AND
+    - token: T_BOOL
+      value: false
+    - token: T_OR
+    - token: T_BOOL
+      value: false
+    - token: T_RAW
+      text: "\n"
+    - token: T_BOOL
+      value: false
+    - token: T_AND
+    - token: T_BOOL
+      value: true
+    - token: T_OR
+    - token: T_BOOL
+      value: false
+    - token: T_RAW
+      text: "\n"
+    - token: T_BOOL
+      value: true
+    - token: T_NE
+    - token: T_OPEN_PAREN
+    - token: T_NUMBER
+      value: 2
+    - token: T_GT
+    - token: T_NUMBER
+      value: 3
+    - token: T_CLOSE_PAREN
+    - token: T_RAW
+      value: "\n"
+    - token: T_OPEN_PAREN
+    - token: T_NUMBER
+      value: 3
+    - token: T_LE
+    - token: T_NUMBER
+      value: 1
+    - token: T_CLOSE_PAREN
+    - token: T_EQ
+    - token: T_BOOL
+      value: false
+    - token: T_RAW
+      value: "\n"
