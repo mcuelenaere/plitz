@@ -36,7 +36,10 @@ trait ResolveIncludeTrait
 
         $lexer = new Lexer($filehandle, $filename);
         $parser = new Parser($lexer->lex(), $this);
+
+        $this->comment('@@START OF TEMPLATE ' . $filename . ' @@');
         $parser->parse();
+        $this->comment('@@END OF TEMPLATE ' . $filename . ' @@');
 
         $this->disableFunctionBoilerplate = $oldDisableFunctionBoilerPlate;
     }
