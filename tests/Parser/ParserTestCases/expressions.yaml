@@ -6,6 +6,7 @@ template: |
         {{ ---3 != +3 }}
         {{ test(5 + 5, "def") != var }}
         {{ !false == "foo" > 5 + 5 * 10 }}
+        {{ true && false != false || true }}
 visitor:
     - startOfStream: []
     - printBlock:
@@ -123,6 +124,25 @@ visitor:
                             operation: "+"
                     operation: ">"
             operation: "=="
+    - raw:
+        - "\n"
+    - printBlock:
+        - BinaryExpression:
+            left:
+                BinaryExpression:
+                    left:
+                        ScalarExpression: {"value": true}
+                    right:
+                        ScalarExpression: {"value": false}
+                    operation: "&&"
+            right:
+                BinaryExpression:
+                    left:
+                        ScalarExpression: {"value": false}
+                    right:
+                        ScalarExpression: {"value": true}
+                    operation: "||"
+            operation: "!="
     - raw:
         - "\n"
     - endOfStream: []

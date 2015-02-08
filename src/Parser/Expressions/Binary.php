@@ -17,6 +17,9 @@ class Binary extends Expression
     const OPERATOR_LESS_THAN              = '<';
     const OPERATOR_LESS_THAN_OR_EQUALS    = '<=';
 
+    const OPERATOR_OR = '||';
+    const OPERATOR_AND = '&&';
+
     /**
      * @var Expression
      */

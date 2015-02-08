@@ -19,11 +19,14 @@ class ExpressionParser
         Tokens::T_LT    => 0,
         Tokens::T_LE    => 0,
 
-        Tokens::T_PLUS  => 1,
-        Tokens::T_MINUS => 1,
+        Tokens::T_AND   => 1,
+        Tokens::T_OR    => 1,
 
-        Tokens::T_MUL   => 2,
-        Tokens::T_DIV   => 2,
+        Tokens::T_PLUS  => 2,
+        Tokens::T_MINUS => 2,
+
+        Tokens::T_MUL   => 3,
+        Tokens::T_DIV   => 3,
     ];
 
     private static $binaryTokens = [
@@ -33,6 +36,9 @@ class ExpressionParser
         Tokens::T_GE    => Expressions\Binary::OPERATOR_GREATER_THAN_OR_EQUALS,
         Tokens::T_LT    => Expressions\Binary::OPERATOR_LESS_THAN,
         Tokens::T_LE    => Expressions\Binary::OPERATOR_LESS_THAN_OR_EQUALS,
+
+        Tokens::T_AND   => Expressions\Binary::OPERATOR_AND,
+        Tokens::T_OR    => Expressions\Binary::OPERATOR_OR,
 
         Tokens::T_PLUS  => Expressions\Binary::OPERATOR_ADD,
         Tokens::T_MINUS => Expressions\Binary::OPERATOR_SUBTRACT,
@@ -50,6 +56,9 @@ class ExpressionParser
         Tokens::T_GE    => self::RIGHT_ASSOCIATIVE,
         Tokens::T_LT    => self::RIGHT_ASSOCIATIVE,
         Tokens::T_LE    => self::RIGHT_ASSOCIATIVE,
+
+        Tokens::T_OR    => self::LEFT_ASSOCIATIVE,
+        Tokens::T_AND   => self::LEFT_ASSOCIATIVE,
 
         Tokens::T_PLUS  => self::LEFT_ASSOCIATIVE,
         Tokens::T_MINUS => self::LEFT_ASSOCIATIVE,
