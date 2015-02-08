@@ -17,6 +17,8 @@ class TemplateFunctions
      */
     public static function fetchProperty()
     {
+        static $strictMode = false; // TODO: allow changing this at runtime
+
         $args = func_get_args();
         if (count($args) < 2) {
             throw new \InvalidArgumentException('Expected at least 2 arguments');
@@ -29,7 +31,11 @@ class TemplateFunctions
             } else if (is_array($variable)) {
                 $variable = &$variable[$arg];
             } else {
-                throw new \InvalidArgumentException('$variable is neither an object nor an array');
+                if ($strictMode) {
+                    throw new \InvalidArgumentException('Expected template variable to be either an object or an array, got a "' . gettype($variable) . '" instead.');
+                } else {
+                    return null;
+                }
             }
         }
 
