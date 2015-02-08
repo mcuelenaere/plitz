@@ -9,7 +9,6 @@ class PhpCompiler extends \Plitz\Compilers\PhpCompiler
     use EscapeExpressionTrait;
     use ResolveIncludeTrait;
     use ResolveParentVariableTrait;
-    use ConvertGetAttributeToFetchPropertyCallTrait;
 
     /**
      * @var string
@@ -46,6 +45,44 @@ class PhpCompiler extends \Plitz\Compilers\PhpCompiler
         parent::printBlock($this->escapeExpression($value));
     }
 
+    /**
+     * This method reduces a (recursive) GetAttribute expression to a TemplateFunctions::fetchProperty() MethodCall expression
+     * @param Expressions\GetAttribute $expr
+     * @return Expressions\MethodCall
+     */
+    protected function convertGetAttributeToFetchPropertyCall(Expressions\GetAttribute $expr)
+    {
+        $baseExpr = $expr->getExpression();
+        if (
+            $baseExpr instanceof Expressions\Variable &&
+            !in_array($baseExpr->getVariableName(), ['_parent', '_top', '_'])
+        ) {
+            // make sure we use fetchProperty() to dereference the variable, instead of doing a normal array dereference
+            $properties = [
+                new Expressions\Variable('_'),
+                new Expressions\Scalar($baseExpr->getVariableName())
+            ];
+        } else {
+            $properties = [
+                $baseExpr
+            ];
+        }
+
+        while ($expr instanceof Expressions\GetAttribute) {
+            // don't pass the "magic" attributes to fetchProperty()
+            if (in_array($expr->getAttributeName(), ['_parent', '_top'])) {
+                $properties[] = $expr;
+                $expr = $expr->getExpression();
+                continue;
+            }
+
+            $properties[] = new Expressions\Scalar($expr->getAttributeName());
+            $expr = $expr->getExpression();
+        }
+
+        return new Expressions\MethodCall('\\Plitz\\Bindings\\Blitz\\TemplateFunctions::fetchProperty', $properties);
+    }
+
     protected function expression(Expression $expr)
     {
         if ($expr instanceof Expressions\Variable) {
@@ -60,6 +97,12 @@ class PhpCompiler extends \Plitz\Compilers\PhpCompiler
             } else if ($expr->getVariableName() === '_') {
                 fwrite($this->output, '$' . $this->currentContext);
                 return;
+            } else {
+                // convert variable dereferences into fetchProperty() calls
+                $expr = new Expressions\MethodCall('\\Plitz\\Bindings\\Blitz\\TemplateFunctions::fetchProperty', [
+                    new Expressions\Variable('_'),
+                    new Expressions\Scalar($expr->getVariableName())
+                ]);
             }
         } else if ($expr instanceof Expressions\GetAttribute) {
             if ($expr->getAttributeName() === '_parent') {
