@@ -98,4 +98,12 @@ class ArrayVisitor implements Visitor
             'arguments' => func_get_args()
         ];
     }
+
+    public function comment($data)
+    {
+        $this->calls[] = [
+            'method' => __FUNCTION__,
+            'arguments' => func_get_args()
+        ];
+    }
 }

@@ -100,6 +100,11 @@ class PhpCompiler implements Visitor
         fwrite($this->output, '?>');
     }
 
+    public function comment($data)
+    {
+        fwrite($this->output, '<?php /* ' . $data . ' */ ?>');
+    }
+
     protected function canParensBeOmittedFor(Expression $expr)
     {
         return $expr instanceof Expressions\Scalar ||

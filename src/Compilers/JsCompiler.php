@@ -145,6 +145,11 @@ class JsCompiler implements Visitor
             ->newline();
     }
 
+    public function comment($data)
+    {
+        $this->codeEmitter->line('/* ' . $data . ' */');
+    }
+
     protected function canParensBeOmittedFor(Expression $expr)
     {
         return $expr instanceof Expressions\Scalar ||

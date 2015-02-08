@@ -17,4 +17,6 @@ interface Visitor
     public function endLoopBlock();
 
     public function printBlock(Expression $value);
+
+    public function comment($data);
 }
