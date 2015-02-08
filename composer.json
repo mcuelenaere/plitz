@@ -12,6 +12,9 @@
 			"Plitz\\Tests\\": "tests/"
 		}
 	},
+	"require": {
+		"php": ">=5.5"
+	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",
 		"mockery/mockery": "~0.9",
