@@ -5,13 +5,17 @@ php:
   - hhvm
 
 before_install:
-  - composer self-update
+  - composer self-update -n
 
 install:
-  - composer install
+  - composer install -n
 
 script:
-  - vendor/bin/phpunit
+  - mkdir -p build/logs
+  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+
+after_script:
+  - vendor/bin/coveralls -v
 
 sudo: false
 cache:

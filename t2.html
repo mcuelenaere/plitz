@@ -1,0 +1,8 @@
+Hi {{ user.name }}. These are your friends:
+{{ BEGIN user.friends }}
+    * {{ name }}
+    {{ IF isOnline }}
+      -> online
+    {{ END }}
+      -> {{ age + 5 }}
+{{ END }}
