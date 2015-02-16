@@ -100,24 +100,26 @@ class JsCompiler implements Visitor
 
     public function loopBlock(Expression $variable)
     {
-        $loopVariable = "i" . $this->contextCounter;
+        $indexVariable = "i" . $this->contextCounter;
+        $loopVariable = "loop" . $this->contextCounter;
         $newContext = 'context' . ($this->contextCounter + 1);
 
         $this->codeEmitter
             ->newline()
-            ->lineNoEnding("for (var {$loopVariable} = 0; {$loopVariable} < ");
+            ->lineNoEnding("var {$loopVariable} = ");
         $this->expression($variable);
         $this->codeEmitter
-            ->raw(".length; {$loopVariable}++) {")
-            ->newline()
+            ->raw(';')
+            ->newline();
+
+        $this->codeEmitter
+            ->line("if (!!{$loopVariable} && {$loopVariable}.constructor === Array) {")
+            ->indent();
+
+        $this->codeEmitter
+            ->line("for (var {$indexVariable} = 0; {$indexVariable} < {$loopVariable}.length; {$indexVariable}++) {")
             ->indent()
-            ->lineNoEnding("var {$newContext} = ");
-
-        $this->expression($variable);
-
-        $this->codeEmitter
-            ->raw("[{$loopVariable}];")
-            ->newline()
+            ->line("var {$newContext} = {$loopVariable}[{$indexVariable}];")
             ->newline();
 
         $this->contextCounter++;
@@ -127,6 +129,8 @@ class JsCompiler implements Visitor
     public function endLoopBlock()
     {
         $this->codeEmitter
+            ->outdent()
+            ->line("}")
             ->outdent()
             ->line("}")
             ->newline();

@@ -17,18 +17,21 @@ output: |
         buffer += context.user.name;
         buffer += ". These are your friends:\n";
 
-        for (var i0 = 0; i0 < context.user.friends.length; i0++) {
-            var context1 = context.user.friends[i0];
+        var loop0 = context.user.friends;
+        if (!!loop0 && loop0.constructor === Array) {
+            for (var i0 = 0; i0 < loop0.length; i0++) {
+                var context1 = loop0[i0];
 
-            buffer += "\n    * ";
-            buffer += helpers.capitalize(context1.name);
-            buffer += "\n    ";
-            if (context1.isOnline) {
-                buffer += "\n      -> online\n    ";
+                buffer += "\n    * ";
+                buffer += helpers.capitalize(context1.name);
+                buffer += "\n    ";
+                if (context1.isOnline) {
+                    buffer += "\n      -> online\n    ";
+                }
+                buffer += "\n      -> ";
+                buffer += (context1.age + 5);
+                buffer += "\n";
             }
-            buffer += "\n      -> ";
-            buffer += (context1.age + 5);
-            buffer += "\n";
         }
 
         buffer += "\n";
