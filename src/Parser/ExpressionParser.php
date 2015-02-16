@@ -12,21 +12,22 @@ use Plitz\Lexer\Tokens;
 class ExpressionParser
 {
     private static $precedences = [
-        Tokens::T_EQ    => 0,
-        Tokens::T_NE    => 0,
-        Tokens::T_GT    => 0,
-        Tokens::T_GE    => 0,
-        Tokens::T_LT    => 0,
-        Tokens::T_LE    => 0,
+        Tokens::T_AND   => 10,
+        Tokens::T_OR    => 11,
 
-        Tokens::T_AND   => 1,
-        Tokens::T_OR    => 1,
+        Tokens::T_EQ    => 20,
+        Tokens::T_NE    => 20,
 
-        Tokens::T_PLUS  => 2,
-        Tokens::T_MINUS => 2,
+        Tokens::T_GT    => 25,
+        Tokens::T_GE    => 25,
+        Tokens::T_LT    => 25,
+        Tokens::T_LE    => 25,
 
-        Tokens::T_MUL   => 3,
-        Tokens::T_DIV   => 3,
+        Tokens::T_PLUS  => 30,
+        Tokens::T_MINUS => 30,
+
+        Tokens::T_MUL   => 40,
+        Tokens::T_DIV   => 40,
     ];
 
     private static $binaryTokens = [
@@ -50,12 +51,12 @@ class ExpressionParser
     const RIGHT_ASSOCIATIVE = 1;
 
     private static $associativity = [
-        Tokens::T_EQ    => self::RIGHT_ASSOCIATIVE,
-        Tokens::T_NE    => self::RIGHT_ASSOCIATIVE,
-        Tokens::T_GT    => self::RIGHT_ASSOCIATIVE,
-        Tokens::T_GE    => self::RIGHT_ASSOCIATIVE,
-        Tokens::T_LT    => self::RIGHT_ASSOCIATIVE,
-        Tokens::T_LE    => self::RIGHT_ASSOCIATIVE,
+        Tokens::T_EQ    => self::LEFT_ASSOCIATIVE,
+        Tokens::T_NE    => self::LEFT_ASSOCIATIVE,
+        Tokens::T_GT    => self::LEFT_ASSOCIATIVE,
+        Tokens::T_GE    => self::LEFT_ASSOCIATIVE,
+        Tokens::T_LT    => self::LEFT_ASSOCIATIVE,
+        Tokens::T_LE    => self::LEFT_ASSOCIATIVE,
 
         Tokens::T_OR    => self::LEFT_ASSOCIATIVE,
         Tokens::T_AND   => self::LEFT_ASSOCIATIVE,

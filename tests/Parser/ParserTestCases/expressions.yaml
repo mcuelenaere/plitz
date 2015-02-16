@@ -129,20 +129,20 @@ visitor:
     - printBlock:
         - BinaryExpression:
             left:
-                BinaryExpression:
-                    left:
-                        ScalarExpression: {"value": true}
-                    right:
-                        ScalarExpression: {"value": false}
-                    operation: "&&"
+                ScalarExpression: {"value": true}
             right:
                 BinaryExpression:
                     left:
-                        ScalarExpression: {"value": false}
+                        BinaryExpression:
+                            left:
+                                ScalarExpression: {"value": false}
+                            right:
+                                ScalarExpression: {"value": false}
+                            operation: "!="
                     right:
                         ScalarExpression: {"value": true}
                     operation: "||"
-            operation: "!="
+            operation: "&&"
     - raw:
         - "\n"
     - endOfStream: []
