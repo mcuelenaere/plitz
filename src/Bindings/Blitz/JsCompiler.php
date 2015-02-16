@@ -19,6 +19,99 @@ class JsCompiler extends \Plitz\Compilers\JsCompiler
         $this->basePath = $basePath;
     }
 
+    /**
+     * Helper function which returns true if the expression requires boolean input values
+     *
+     * @param Expression $expr
+     * @return bool
+     */
+    protected static function expressionRequiresBooleanInput(Expression $expr)
+    {
+        return (
+            ($expr instanceof Expressions\Binary && in_array($expr->getOperation(), [Expressions\Binary::OPERATOR_AND, Expressions\Binary::OPERATOR_OR])) ||
+            ($expr instanceof Expressions\Unary && $expr->getOperation() === Expressions\Unary::OPERATION_NOT)
+        );
+    }
+
+    /**
+     * Wraps the expression in a `helpers.isEmpty()` call, if necessary
+     *
+     * @param Expression $expr
+     * @return Expression
+     */
+    protected function wrapExpressionInIsEmptyCall(Expression $expr)
+    {
+        if ($expr instanceof Expressions\Binary) {
+            $shouldWrap = self::expressionRequiresBooleanInput($expr);
+
+            // check left and right sub-expressions
+            $left = ($shouldWrap || self::expressionRequiresBooleanInput($expr->getLeft()))
+                ? $this->wrapExpressionInIsEmptyCall($expr->getLeft())
+                : $expr->getLeft();
+            $right = ($shouldWrap || self::expressionRequiresBooleanInput($expr->getRight()))
+                ? $this->wrapExpressionInIsEmptyCall($expr->getRight())
+                : $expr->getRight();
+
+            if ($left !== $expr->getLeft() || $right !== $expr->getRight()) {
+                $expr = new Expressions\Binary($left, $right, $expr->getOperation());
+            }
+        } else if ($expr instanceof Expressions\Unary) {
+            $shouldWrap = self::expressionRequiresBooleanInput($expr);
+
+            // check sub-expression
+            $subExpr = ($shouldWrap || self::expressionRequiresBooleanInput($expr->getExpression()))
+                ? $this->wrapExpressionInIsEmptyCall($expr->getExpression())
+                : $expr->getExpression();
+
+            if ($subExpr !== $expr->getExpression()) {
+                $expr = new Expressions\Unary($subExpr, $expr->getOperation());
+
+                // check if we have a double nested unary not operator
+                if (
+                    $expr->getOperation() === Expressions\Unary::OPERATION_NOT &&
+                    $expr->getExpression() instanceof Expressions\Unary &&
+                    $expr->getExpression()->getOperation() === Expressions\Unary::OPERATION_NOT
+                ) {
+                    // unwrap the nested expression
+                    $expr = $expr->getExpression()->getExpression();
+                }
+            }
+        } else if ($expr instanceof Expressions\Scalar) {
+            // can be calculated at build-time
+            $isEmpty = empty($expr->getValue());
+            $expr = new Expressions\Scalar($isEmpty);
+        } else if (
+            ($expr instanceof Expressions\GetAttribute) ||
+            ($expr instanceof Expressions\MethodCall) ||
+            ($expr instanceof Expressions\Variable)
+        ) {
+            // wrap potential empty value in a `!helpers.isEmpty($)` call
+            $expr = new Expressions\Unary(
+                new Expressions\MethodCall(
+                    'isEmpty',
+                    [$expr]
+                ),
+                Expressions\Unary::OPERATION_NOT
+            );
+        }
+
+        return $expr;
+    }
+
+    public function ifBlock(Expression $condition)
+    {
+        $condition = $this->wrapExpressionInIsEmptyCall($condition);
+
+        parent::ifBlock($condition);
+    }
+
+    public function elseIfBlock(Expression $condition)
+    {
+        $condition = $this->wrapExpressionInIsEmptyCall($condition);
+
+        parent::elseIfBlock($condition);
+    }
+
     public function printBlock(Expression $value)
     {
         if ($value instanceof Expressions\MethodCall && $value->getMethodName() === 'assignVar') {
