@@ -129,6 +129,43 @@ class JsCompiler extends \Plitz\Compilers\JsCompiler
         parent::printBlock($this->escapeExpression($value));
     }
 
+    /**
+     * This method reduces a (recursive) GetAttribute expression to a chain of binary `&&` expressions
+     * @param Expressions\GetAttribute $expr
+     * @return array
+     */
+    protected function convertGetAttributeToFetchPropertyCall(Expressions\GetAttribute $expr)
+    {
+        $baseExpr = $expr->getExpression();
+        if (
+            $baseExpr instanceof Expressions\Variable &&
+            !in_array($baseExpr->getVariableName(), ['_parent', '_top', '_'])
+        ) {
+            $properties = [
+                $baseExpr->getVariableName()
+            ];
+            $baseExpr = new Expressions\Variable('_');
+        } else {
+            $properties = [];
+        }
+
+        while ($expr instanceof Expressions\GetAttribute) {
+            if ($expr->getAttributeName() === '_parent') {
+                if (count($properties) > 0) {
+                    array_pop($properties);
+                } else {
+                    $baseExpr = new Expressions\GetAttribute($baseExpr, '_parent');
+                }
+            } else {
+                $properties[] = $expr->getAttributeName();
+            }
+
+            $expr = $expr->getExpression();
+        }
+
+        return [$baseExpr, $properties];
+    }
+
     protected function expression(Expression $expr)
     {
         if ($expr instanceof Expressions\Variable) {
@@ -143,12 +180,30 @@ class JsCompiler extends \Plitz\Compilers\JsCompiler
             } else {
                 parent::expression($expr);
             }
-        } else if ($expr instanceof Expressions\GetAttribute && $expr->getAttributeName() === '_parent') {
-            $depth = $this->resolveParentVariable($expr);
+        } else if ($expr instanceof Expressions\GetAttribute) {
+            if ($expr->getAttributeName() === '_parent') {
+                $depth = $this->resolveParentVariable($expr);
 
-            $contextCounter = max(0, $this->contextCounter - $depth);
-            $context = ($contextCounter > 0 ? 'context' . $contextCounter : 'context');
-            $this->codeEmitter->raw($context);
+                $contextCounter = max(0, $this->contextCounter - $depth);
+                $context = ($contextCounter > 0 ? 'context' . $contextCounter : 'context');
+                $this->codeEmitter->raw($context);
+            } else {
+                list($baseExpr, $properties) = $this->convertGetAttributeToFetchPropertyCall($expr);
+
+                // print chain of `&&` binary operators
+                $this->codeEmitter->raw('(');
+                $this->expression($baseExpr);
+                for ($i = 0; $i < count($properties); $i++) {
+                    $this->codeEmitter->raw(' && ');
+
+                    $this->expression($baseExpr);
+                    for ($j = 0; $j < $i; $j++) {
+                        $this->codeEmitter->raw($this->createJsVariableDereference($properties[$j]));
+                    }
+                    $this->codeEmitter->raw($this->createJsVariableDereference($properties[$i]));
+                }
+                $this->codeEmitter->raw(')');
+            }
         } else if ($expr instanceof Expressions\MethodCall && $expr->getMethodName() === 'if') {
             $this->codeEmitter->raw('(');
             $this->expression($expr->getArguments()[0]);
