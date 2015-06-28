@@ -19,11 +19,30 @@
 		"phpunit/phpunit": "~4.0",
 		"mockery/mockery": "~0.9",
 		"symfony/yaml": "~2.6",
-		"satooshi/php-coveralls": "~0.6"
+		"satooshi/php-coveralls": "~0.6",
+		"alexeyrybak/blitz": "*"
 	},
 	"extra": {
 		"branch-alias": {
 			"dev-master": "1.0.x-dev"
 		}
-	}
+	},
+	"repositories": [
+		{
+			"type": "package",
+			"package": {
+				"name": "alexeyrybak/blitz",
+				"version": "0.9.1",
+				"dist": {
+					"url": "https://github.com/alexeyrybak/blitz/archive/0.9.1.zip",
+					"type": "zip"
+				},
+				"source": {
+					"url": "https://github.com/alexeyrybak/blitz",
+					"type": "git",
+					"reference": "tags/0.9.1"
+				}
+			}
+		}
+	]
 }

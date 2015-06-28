@@ -1,12 +1,28 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b443a016915da0e2a481bb903f644242",
+    "hash": "9dc370a49d72b1316fd00c6a3e1c705c",
     "packages": [],
     "packages-dev": [
+        {
+            "name": "alexeyrybak/blitz",
+            "version": "0.9.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/alexeyrybak/blitz",
+                "reference": "tags/0.9.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/alexeyrybak/blitz/archive/0.9.1.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "type": "library"
+        },
         {
             "name": "doctrine/instantiator",
             "version": "1.0.4",
