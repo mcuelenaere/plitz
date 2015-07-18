@@ -1,0 +1,66 @@
+message: |
+        Arithmetic: {{ 1 + 2 - 3 * 4 / 5 }}
+        Comparison: {{ 1 == 2 != 3 > 4 < 5 >= 6 <= 7 }}
+        Logical: {{ true && false || !true or false and true }}
+flow:
+    - token: T_RAW
+      text: "Arithmetic: "
+    - token: T_NUMBER
+      value: 1
+    - token: T_PLUS
+    - token: T_NUMBER
+      value: 2
+    - token: T_MINUS
+    - token: T_NUMBER
+      value: 3
+    - token: T_MUL
+    - token: T_NUMBER
+      value: 4
+    - token: T_DIV
+    - token: T_NUMBER
+      value: 5
+
+
+    - token: T_RAW
+      text: "\nComparison: "
+    - token: T_NUMBER
+      value: 1
+    - token: T_EQ
+    - token: T_NUMBER
+      value: 2
+    - token: T_NE
+    - token: T_NUMBER
+      value: 3
+    - token: T_GT
+    - token: T_NUMBER
+      value: 4
+    - token: T_LT
+    - token: T_NUMBER
+      value: 5
+    - token: T_GE
+    - token: T_NUMBER
+      value: 6
+    - token: T_LE
+    - token: T_NUMBER
+      value: 7
+
+
+    - token: T_RAW
+      text: "\nLogical: "
+    - token: T_BOOL
+      value: true
+    - token: T_AND
+    - token: T_BOOL
+      value: false
+    - token: T_OR
+    - token: T_NOT
+    - token: T_BOOL
+      value: true
+    - token: T_OR
+    - token: T_BOOL
+      value: false
+    - token: T_AND
+    - token: T_BOOL
+      value: true
+    - token: T_RAW
+      text: "\n"
