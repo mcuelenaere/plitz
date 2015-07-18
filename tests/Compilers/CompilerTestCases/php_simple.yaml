@@ -12,12 +12,12 @@ template: |
     {{ END }}
 output: |
     Hi <?=$context['user']['name']?>. These are your friends:
-    <?php foreach ($context['user']['friends'] as $context1): ?>
-        * <?=capitalize($context1['name'])?>
-        <?php if ($context1['isOnline']): ?>
+    <?php foreach ($context['user']['friends'] as $context1): ?><?="\n"?>
+        * <?=capitalize($context1['name'])?><?="\n"?>
+        <?php if ($context1['isOnline']): ?><?="\n"?>
           -> online
-        <?php elseif (!$context1['isOnline']): ?>
+        <?php elseif (!$context1['isOnline']): ?><?="\n"?>
           -> offline
-        <?php endif; ?>
-          -> <?=($context1['age'] + 5)?>
-    <?php endforeach; ?>
+        <?php endif; ?><?="\n"?>
+          -> <?=($context1['age'] + 5)?><?="\n"?>
+    <?php endforeach; ?><?="\n"?>

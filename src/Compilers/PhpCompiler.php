@@ -26,6 +26,12 @@ class PhpCompiler implements Visitor
     protected $contextCounter;
 
     /**
+     * Whether or not the last written string to the output stream ended in a '?>' PHP tag
+     * @var boolean
+     */
+    private $previousOutputWasPhpTag;
+
+    /**
      * @param resource $stream
      */
     public function __construct($stream)
@@ -33,6 +39,7 @@ class PhpCompiler implements Visitor
         $this->output = $stream;
         $this->contextCounter = 0;
         $this->currentContext = 'context';
+        $this->previousOutputWasPhpTag = false;
     }
 
     public function startOfStream()
@@ -47,7 +54,17 @@ class PhpCompiler implements Visitor
 
     public function raw($data)
     {
+        if ($data[0] === "\n" && $this->previousOutputWasPhpTag) {
+            // prepend $data with a newline emitted in PHP code, as the actual newline is omitted by the PHP engine
+            // see these for more information:
+            // http://stackoverflow.com/questions/1908175/is-there-a-way-to-force-a-new-line-after-php-closing-tag-when-embedded-among
+            // http://php.net/manual/en/language.basic-syntax.instruction-separation.php
+            $newlines = substr($data, 0, strcspn($data, "\n") + 1);
+            $data = '<?="' . addcslashes($newlines, "\n") . '"?>' . $data;
+        }
+
         fwrite($this->output, $data);
+        $this->previousOutputWasPhpTag = false;
     }
 
     public function ifBlock(Expression $condition)
@@ -55,11 +72,13 @@ class PhpCompiler implements Visitor
         fwrite($this->output, '<?php if (');
         $this->expression($condition);
         fwrite($this->output, '): ?>');
+        $this->previousOutputWasPhpTag = true;
     }
 
     public function elseBlock()
     {
         fwrite($this->output, '<?php else: ?>');
+        $this->previousOutputWasPhpTag = true;
     }
 
     public function elseIfBlock(Expression $condition)
@@ -67,11 +86,13 @@ class PhpCompiler implements Visitor
         fwrite($this->output, '<?php elseif (');
         $this->expression($condition);
         fwrite($this->output, '): ?>');
+        $this->previousOutputWasPhpTag = true;
     }
 
     public function endIfBlock()
     {
         fwrite($this->output, '<?php endif; ?>');
+        $this->previousOutputWasPhpTag = true;
     }
 
     public function loopBlock(Expression $variable)
@@ -83,11 +104,13 @@ class PhpCompiler implements Visitor
         $this->currentContext = ($this->contextCounter > 0 ? 'context' . $this->contextCounter : 'context');
 
         fwrite($this->output, ' as $' . $this->currentContext . '): ?>');
+        $this->previousOutputWasPhpTag = true;
     }
 
     public function endLoopBlock()
     {
         fwrite($this->output, '<?php endforeach; ?>');
+        $this->previousOutputWasPhpTag = true;
 
         $this->contextCounter--;
         $this->currentContext = ($this->contextCounter > 0 ? 'context' . $this->contextCounter : 'context');
@@ -98,11 +121,13 @@ class PhpCompiler implements Visitor
         fwrite($this->output, '<?=');
         $this->expression($value);
         fwrite($this->output, '?>');
+        $this->previousOutputWasPhpTag = true;
     }
 
     public function comment($data)
     {
         fwrite($this->output, '<?php /* ' . $data . ' */ ?>');
+        $this->previousOutputWasPhpTag = true;
     }
 
     protected function canParensBeOmittedFor(Expression $expr)
