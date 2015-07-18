@@ -1,5 +1,5 @@
 message: |
-        Arithmetic: {{ 1 + 2 - 3 * 4 / 5 }}
+        Arithmetic: {{ 1 + 2 - 3 * 4 / 5 % 6 }}
         Comparison: {{ 1 == 2 != 3 > 4 < 5 >= 6 <= 7 }}
         Logical: {{ true && false || !true or false and true }}
 flow:
@@ -19,6 +19,9 @@ flow:
     - token: T_DIV
     - token: T_NUMBER
       value: 5
+    - token: T_MOD
+    - token: T_NUMBER
+      value: 6
 
 
     - token: T_RAW

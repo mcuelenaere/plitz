@@ -37,4 +37,5 @@ class Tokens
     const T_MINUS = "T_MINUS";
     const T_MUL = "T_MUL";
     const T_DIV = "T_DIV";
+    const T_MOD = "T_MOD";
 }
