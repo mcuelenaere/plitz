@@ -9,6 +9,7 @@ class Binary extends Expression
     const OPERATOR_SUBTRACT = '-';
     const OPERATOR_MULTIPLY = '*';
     const OPERATOR_DIVIDE   = '/';
+    const OPERATOR_MODULO   = '%';
 
     const OPERATOR_EQUALS                 = '==';
     const OPERATOR_NOT_EQUALS             = '!=';
