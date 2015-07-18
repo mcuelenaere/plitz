@@ -25,7 +25,7 @@ class Blitz
     /**
      * Template filename
      *
-     * @var string
+     * @var string|null
      */
     private $templatePath;
 
@@ -49,7 +49,7 @@ class Blitz
      */
     private $iterations;
 
-    public function __construct($filename, $templateRoot = null)
+    public function __construct($filename = null, $templateRoot = null)
     {
         /*
          * INI settings:
@@ -86,7 +86,9 @@ class Blitz
         $this->globalVariables = [];
         $this->iterations = [];
         $this->templateRoot = rtrim($templateRoot, DIRECTORY_SEPARATOR);
-        $this->templatePath = $this->templateRoot . DIRECTORY_SEPARATOR . $filename;
+        if ($filename !== null) {
+            $this->templatePath = $this->templateRoot . DIRECTORY_SEPARATOR . $filename;
+        }
         $this->compiledTemplatePath = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'plitz' . DIRECTORY_SEPARATOR . $filename . '.php';
     }
 
@@ -248,7 +250,10 @@ class Blitz
     public function display(array $iterations = [])
     {
         // TODO: disable this check in production
-        if (!is_file($this->compiledTemplatePath) || filemtime($this->templatePath) >= filemtime($this->compiledTemplatePath)) {
+        if (
+            !is_file($this->compiledTemplatePath)
+            || ($this->templatePath !== null && filemtime($this->templatePath) >= filemtime($this->compiledTemplatePath))
+        ) {
             if (!is_dir(dirname($this->compiledTemplatePath))) {
                 // recursively create parent directories
                 mkdir(dirname($this->compiledTemplatePath), 0755, true);

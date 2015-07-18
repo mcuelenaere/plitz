@@ -35,7 +35,7 @@ $assignments = [
 ];
 
 // construct Blitz object
-$blitz = new Plitz\Bindings\Blitz\Blitz(null);
+$blitz = new Plitz\Bindings\Blitz\Blitz();
 
 // load template
 $blitz->load($template);
