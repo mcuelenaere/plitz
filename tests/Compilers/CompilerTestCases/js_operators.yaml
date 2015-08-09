@@ -1,6 +1,6 @@
 language: JS
 template: |
-    Arithmetic: {{ 1 + 2 - 3 * 4 / 5 }}
+    Arithmetic: {{ 1 + 2 - 3 * 4 / 5 % 6 }}
     Comparison: {{ 1 == 2 != 3 > 4 < 5 >= 6 <= 7 }}
     Logical: {{ true && false || !true or false and true }}
 output: |
@@ -9,7 +9,7 @@ output: |
         var buffer = '';
 
         buffer += "Arithmetic: ";
-        buffer += ((1 + 2) - ((3 * 4) / 5));
+        buffer += ((1 + 2) - (((3 * 4) / 5) % 6));
         buffer += "\nComparison: ";
         buffer += ((1 == 2) != ((((3 > 4) < 5) >= 6) <= 7));
         buffer += "\nLogical: ";

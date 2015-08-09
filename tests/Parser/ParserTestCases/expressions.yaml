@@ -1,7 +1,7 @@
 template: |
         {{ 1 + 2 }}
         {{ 3 * -4 }}
-        {{ 5 * 6 + 7 / 8 }}
+        {{ 5 * 6 + 7 / 8 % 9 }}
         {{ (9 + 10) >= 11 }}
         {{ ---3 != +3 }}
         {{ test(5 + 5, "def") != var }}
@@ -42,10 +42,15 @@ visitor:
             right:
                 BinaryExpression:
                     left:
-                        ScalarExpression: {"value": 7}
+                        BinaryExpression:
+                            left:
+                                ScalarExpression: {"value": 7}
+                            right:
+                                ScalarExpression: {"value": 8}
+                            operation: "/"
                     right:
-                        ScalarExpression: {"value": 8}
-                    operation: "/"
+                        ScalarExpression: {"value": 9}
+                    operation: "%"
             operation: "+"
     - raw:
         - "\n"

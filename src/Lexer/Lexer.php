@@ -118,6 +118,7 @@ class Lexer
             '-'  => Tokens::T_MINUS,
             '*'  => Tokens::T_MUL,
             '/'  => Tokens::T_DIV,
+            '%'  => Tokens::T_MOD,
 
             '.'  => Tokens::T_ATTR_SEP,
             ','  => Tokens::T_COMMA,

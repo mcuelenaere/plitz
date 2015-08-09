@@ -28,6 +28,7 @@ class ExpressionParser
 
         Tokens::T_MUL   => 40,
         Tokens::T_DIV   => 40,
+        Tokens::T_MOD   => 40,
     ];
 
     private static $binaryTokens = [
@@ -45,6 +46,7 @@ class ExpressionParser
         Tokens::T_MINUS => Expressions\Binary::OPERATOR_SUBTRACT,
         Tokens::T_MUL   => Expressions\Binary::OPERATOR_MULTIPLY,
         Tokens::T_DIV   => Expressions\Binary::OPERATOR_DIVIDE,
+        Tokens::T_MOD   => Expressions\Binary::OPERATOR_MODULO,
     ];
 
     const LEFT_ASSOCIATIVE  = 0;
@@ -65,6 +67,7 @@ class ExpressionParser
         Tokens::T_MINUS => self::LEFT_ASSOCIATIVE,
         Tokens::T_MUL   => self::LEFT_ASSOCIATIVE,
         Tokens::T_DIV   => self::LEFT_ASSOCIATIVE,
+        Tokens::T_MOD   => self::LEFT_ASSOCIATIVE,
     ];
 
     /**
