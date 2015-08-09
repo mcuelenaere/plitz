@@ -6,7 +6,7 @@ use Plitz\Lexer\Lexer;
 use Plitz\Parser\Parser;
 use Symfony\Component\Yaml\Yaml;
 
-class PlitzToPhp extends \PHPUnit_Framework_TestCase
+class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var resource
@@ -87,7 +87,7 @@ class PlitzToPhp extends \PHPUnit_Framework_TestCase
 
     public function provideYamlCases()
     {
-        foreach (glob(dirname(__FILE__) . "/PlitzToPhpTestCases/*.yaml") as $file) {
+        foreach (glob(dirname(__FILE__) . "/PlitzTestCases/*.yaml") as $file) {
             $parsed = Yaml::parse(file_get_contents($file), true);
             yield basename($file) => [
                 $parsed['template'],
