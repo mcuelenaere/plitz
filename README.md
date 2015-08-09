@@ -1,8 +1,7 @@
 ## Plitz
 
-[![travis ci](https://img.shields.io/travis/mcuelenaere/plitz.svg)](https://travis-ci.org/mcuelenaere/plitz)
-[![coveralls](https://img.shields.io/coveralls/mcuelenaere/plitz.svg)](https://coveralls.io/github/mcuelenaere/plitz)
-[![github release](https://img.shields.io/github/release/mcuelenaere/plitz.svg)](https://github.com/mcuelenaere/plitz/releases)
+[![travis ci](https://travis-ci.org/mcuelenaere/plitz.svg?branch=master)](https://travis-ci.org/mcuelenaere/plitz)
+[![coveralls](https://coveralls.io/repos/mcuelenaere/plitz/badge.svg?branch=master)](https://coveralls.io/github/mcuelenaere/plitz)
 [![github tag](https://img.shields.io/github/tag/mcuelenaere/plitz.svg)](https://github.com/mcuelenaere/plitz/tags)
 [![packagist downloads](https://img.shields.io/packagist/dt/mcuelenaere/plitz.svg)](https://packagist.org/packages/mcuelenaere/plitz)
 
