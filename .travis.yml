@@ -19,6 +19,9 @@ after_script:
   - vendor/bin/coveralls -v
 
 sudo: false
+branches:
+  only:
+    - master
 cache:
-  - directories:
+  directories:
     - vendor/
