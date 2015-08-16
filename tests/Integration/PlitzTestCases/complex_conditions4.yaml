@@ -1,0 +1,21 @@
+template: |
+    {{ BEGIN runs }}
+    {{IF object.a && object.b != '1' }}a and b != 1{{ELSE}}condition not met{{END}}
+    ###
+    {{ END runs }}
+assignments:
+    runs:
+      - object: {'a': true, 'b': 2}
+      - object: {'a': true, 'b': 1}
+      - object: {'a': true, 'b': null}
+output: |
+
+    a and b != 1
+    ###
+
+    condition not met
+    ###
+
+    a and b != 1
+    ###
+
