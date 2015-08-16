@@ -78,7 +78,7 @@ class JsCompiler extends \Plitz\Compilers\JsCompiler
             }
         } else if ($expr instanceof Expressions\Scalar) {
             // can be calculated at build-time
-            $isEmpty = empty($expr->getValue());
+            $isEmpty = !empty($expr->getValue());
             $expr = new Expressions\Scalar($isEmpty);
         } else if (
             ($expr instanceof Expressions\GetAttribute) ||
