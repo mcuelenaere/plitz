@@ -1,8 +1,8 @@
 <?php
 namespace Plitz\Tests\Integration;
 
-use Plitz\Compilers\JsCompiler;
-use Plitz\Compilers\PhpCompiler;
+use Plitz\Bindings\Blitz\JsCompiler;
+use Plitz\Bindings\Blitz\PhpCompiler;
 use Plitz\Lexer\Lexer;
 use Plitz\Parser\Parser;
 use Symfony\Component\Yaml\Yaml;
@@ -35,6 +35,7 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
     {
         fclose($this->inputStream);
         fclose($this->outputStream);
+        \Mockery::close();
     }
 
     /**
@@ -142,7 +143,8 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
         fwrite($this->inputStream, $template);
         fseek($this->inputStream, 0, SEEK_SET);
 
-        $compiler = new PhpCompiler($this->outputStream);
+        $blitzMock = \Mockery::mock('\\Plitz\\Bindings\\Blitz\\Blitz');
+        $compiler = new PhpCompiler($this->outputStream, "notavailable://not-available", $blitzMock);
         $parser = new Parser($this->lexer->lex(), $compiler);
         $parser->parse();
 
@@ -173,7 +175,7 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
         fwrite($this->inputStream, $template);
         fseek($this->inputStream, 0, SEEK_SET);
 
-        $compiler = new JsCompiler($this->outputStream);
+        $compiler = new JsCompiler($this->outputStream, "notavailable://not-available");
         $parser = new Parser($this->lexer->lex(), $compiler);
         $parser->parse();
 
