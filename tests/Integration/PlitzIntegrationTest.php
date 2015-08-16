@@ -182,10 +182,10 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
 
         // rewind output stream and read its contents
         fseek($this->outputStream, 0, SEEK_SET);
-        $phpCode = stream_get_contents($this->outputStream);
+        $jsCode = stream_get_contents($this->outputStream);
 
         // evaluate generated JavaScript code
-        $output = $this->executeJsCode($nodeJsPath, $phpCode, $assignments);
+        $output = $this->executeJsCode($nodeJsPath, $jsCode, $assignments);
 
         $this->assertEquals(trim($expectedOutput), trim($output));
     }
