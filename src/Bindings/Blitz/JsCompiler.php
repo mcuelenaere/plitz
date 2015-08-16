@@ -34,22 +34,31 @@ class JsCompiler extends \Plitz\Compilers\JsCompiler
     }
 
     /**
-     * Wraps the expression in a `helpers.isEmpty()` call, if necessary
+     * Wraps the expression in a `!helpers.isEmpty()` call, if necessary
+     *
+     * This is necessary because JavaScript behaves differently than PHP when evaluating non-boolean values for their
+     * truthiness; eg:
+     *
+     * node -e 'console.log(!![])'    true
+     * php -r 'var_dump(!![]);'       bool(false)
+     *
+     * node -e 'console.log(!!"0")'   true
+     * php -r 'var_dump(!!"0");'      bool(false)
      *
      * @param Expression $expr
      * @return Expression
      */
-    protected function wrapExpressionInIsEmptyCall(Expression $expr)
+    protected function wrapExpressionInIsNotEmptyCall(Expression $expr)
     {
         if ($expr instanceof Expressions\Binary) {
             $shouldWrap = self::expressionRequiresBooleanInput($expr);
 
             // check left and right sub-expressions
             $left = ($shouldWrap || self::expressionRequiresBooleanInput($expr->getLeft()))
-                ? $this->wrapExpressionInIsEmptyCall($expr->getLeft())
+                ? $this->wrapExpressionInIsNotEmptyCall($expr->getLeft())
                 : $expr->getLeft();
             $right = ($shouldWrap || self::expressionRequiresBooleanInput($expr->getRight()))
-                ? $this->wrapExpressionInIsEmptyCall($expr->getRight())
+                ? $this->wrapExpressionInIsNotEmptyCall($expr->getRight())
                 : $expr->getRight();
 
             if ($left !== $expr->getLeft() || $right !== $expr->getRight()) {
@@ -60,7 +69,7 @@ class JsCompiler extends \Plitz\Compilers\JsCompiler
 
             // check sub-expression
             $subExpr = ($shouldWrap || self::expressionRequiresBooleanInput($expr->getExpression()))
-                ? $this->wrapExpressionInIsEmptyCall($expr->getExpression())
+                ? $this->wrapExpressionInIsNotEmptyCall($expr->getExpression())
                 : $expr->getExpression();
 
             if ($subExpr !== $expr->getExpression()) {
@@ -100,14 +109,14 @@ class JsCompiler extends \Plitz\Compilers\JsCompiler
 
     public function ifBlock(Expression $condition)
     {
-        $condition = $this->wrapExpressionInIsEmptyCall($condition);
+        $condition = $this->wrapExpressionInIsNotEmptyCall($condition);
 
         parent::ifBlock($condition);
     }
 
     public function elseIfBlock(Expression $condition)
     {
-        $condition = $this->wrapExpressionInIsEmptyCall($condition);
+        $condition = $this->wrapExpressionInIsNotEmptyCall($condition);
 
         parent::elseIfBlock($condition);
     }
