@@ -103,7 +103,8 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
             // write JS code to process
             fwrite($pipes[0], "var templateFn = " . $jsCode . ";\n");
             fwrite($pipes[0], "var context = " . json_encode($context) . ";\n");
-            fwrite($pipes[0], "process.stdout.write(templateFn({}, context));\n");
+            fwrite($pipes[0], "var helpers = " . file_get_contents(__DIR__ . "/js_helpers.js") . ";");
+            fwrite($pipes[0], "process.stdout.write(templateFn(helpers, context));\n");
             fclose($pipes[0]);
 
             // read output into memory buffers
