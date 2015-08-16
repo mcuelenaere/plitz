@@ -156,7 +156,7 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
         // evaluate generated PHP code
         $output = $this->executePhpCode($phpCode, $assignments);
 
-        $this->assertEquals($expectedOutput, $output);
+        $this->assertEquals(trim($expectedOutput), trim($output));
     }
 
     /**
@@ -187,7 +187,7 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
         // evaluate generated JavaScript code
         $output = $this->executeJsCode($nodeJsPath, $phpCode, $assignments);
 
-        $this->assertEquals($expectedOutput, $output);
+        $this->assertEquals(trim($expectedOutput), trim($output));
     }
 
     public function provideYamlCases()
