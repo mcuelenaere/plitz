@@ -1,6 +1,7 @@
 <?php
 namespace Plitz\Tests\Compilers;
 
+use Plitz\Compilers\BlitzCompiler;
 use Plitz\Compilers\JsCompiler;
 use Plitz\Compilers\PhpCompiler;
 use Plitz\Lexer\Lexer;
@@ -55,6 +56,9 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
                 break;
             case 'PHP':
                 $compiler = new PhpCompiler($this->outputStream);
+                break;
+            case 'Blitz':
+                $compiler = new BlitzCompiler($this->outputStream);
                 break;
             default:
                 throw new \InvalidArgumentException('Invalid language "' . $language . '" given');

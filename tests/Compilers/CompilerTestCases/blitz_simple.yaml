@@ -1,0 +1,23 @@
+language: Blitz
+template: |
+    Hi {{user.name}}. These are your friends:
+    {{BEGIN user.friends}}
+        * {{ capitalize(  name) }}
+        {{ IF isOnline }}
+          -> online
+        {{ ELSE IF (((!isOnline))) }}
+          -> offline
+        {{ END      }}
+          -> {{age     + 5}}
+    {{END}}
+output: |
+    Hi {{ user.name }}. These are your friends:
+    {{ BEGIN user.friends }}
+        * {{ capitalize(name) }}
+        {{ IF isOnline }}
+          -> online
+        {{ ELSE IF !isOnline }}
+          -> offline
+        {{ END }}
+          -> {{ age + 5 }}
+    {{ END }}
