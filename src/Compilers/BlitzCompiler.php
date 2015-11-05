@@ -44,7 +44,7 @@ class BlitzCompiler implements Visitor
         } else {
             fwrite($this->output, '{{ IF ');
         }
-        $this->expression($condition);
+        $this->expression($condition, true);
         fwrite($this->output, ' }}');
     }
 
@@ -56,7 +56,7 @@ class BlitzCompiler implements Visitor
     public function elseIfBlock(Expression $condition)
     {
         fwrite($this->output, '{{ ELSE IF ');
-        $this->expression($condition);
+        $this->expression($condition, true);
         fwrite($this->output, ' }}');
     }
 
@@ -68,7 +68,7 @@ class BlitzCompiler implements Visitor
     public function loopBlock(Expression $variable)
     {
         fwrite($this->output, '{{ BEGIN ');
-        $this->expression($variable);
+        $this->expression($variable, true);
         fwrite($this->output, ' }}');
     }
 
@@ -80,7 +80,7 @@ class BlitzCompiler implements Visitor
     public function printBlock(Expression $value)
     {
         fwrite($this->output, '{{ ');
-        $this->expression($value);
+        $this->expression($value, true);
         fwrite($this->output, ' }}');
     }
 
@@ -101,22 +101,28 @@ class BlitzCompiler implements Visitor
         return var_export($variable, true);
     }
 
-    protected function expression(Expression $expr)
+    protected function expression(Expression $expr, $omitParens = false)
     {
+        // TODO: implemente a more intelligent algorithm to decide whether or not to render parentheses
+
         if ($expr instanceof Expressions\Binary) {
-            fwrite($this->output, "(");
+            if (!$omitParens) {
+                fwrite($this->output, "(");
+            }
             $this->expression($expr->getLeft());
             fwrite($this->output, " " . $expr->getOperation() . " ");
             $this->expression($expr->getRight());
-            fwrite($this->output, ")");
+            if (!$omitParens) {
+                fwrite($this->output, ")");
+            }
         } else if ($expr instanceof Expressions\Unary) {
-            $showParens = !$this->canParensBeOmittedFor($expr->getExpression());
+            $omitParens |= $this->canParensBeOmittedFor($expr->getExpression());
             fwrite($this->output, $expr->getOperation());
-            if ($showParens) {
+            if (!$omitParens) {
                 fwrite($this->output, "(");
             }
             $this->expression($expr->getExpression());
-            if ($showParens) {
+            if (!$omitParens) {
                 fwrite($this->output, ")");
             }
         } else if ($expr instanceof Expressions\MethodCall) {
