@@ -1,0 +1,61 @@
+message: |
+        {{ include('normal-include.tpl') }}
+        {{ include('scoped-include.tpl', scope=$scope, a=$scope.a) }}
+        {{ include('scoped-include.tpl',  scope   =   $_ , a = $_top.a   ) }}
+flow:
+    - token: T_LITERAL
+      value: include
+    - token: T_OPEN_PAREN
+    - token: T_STRING
+      value: normal-include.tpl
+    - token: T_CLOSE_PAREN
+    - token: T_RAW
+      text: "\n"
+
+    - token: T_LITERAL
+      value: include
+    - token: T_OPEN_PAREN
+    - token: T_STRING
+      value: scoped-include.tpl
+    - token: T_COMMA
+    - token: T_LITERAL
+      value: scope
+    - token: T_ASSIGN
+    - token: T_LITERAL
+      value: $scope
+    - token: T_COMMA
+    - token: T_LITERAL
+      value: a
+    - token: T_ASSIGN
+    - token: T_LITERAL
+      value: $scope
+    - token: T_ATTR_SEP
+    - token: T_LITERAL
+      value: a
+    - token: T_CLOSE_PAREN
+    - token: T_RAW
+      text: "\n"
+
+    - token: T_LITERAL
+      value: include
+    - token: T_OPEN_PAREN
+    - token: T_STRING
+      value: scoped-include.tpl
+    - token: T_COMMA
+    - token: T_LITERAL
+      value: scope
+    - token: T_ASSIGN
+    - token: T_LITERAL
+      value: $_
+    - token: T_COMMA
+    - token: T_LITERAL
+      value: a
+    - token: T_ASSIGN
+    - token: T_LITERAL
+      value: $_top
+    - token: T_ATTR_SEP
+    - token: T_LITERAL
+      value: a
+    - token: T_CLOSE_PAREN
+    - token: T_RAW
+      text: "\n"

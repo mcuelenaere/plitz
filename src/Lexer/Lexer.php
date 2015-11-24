@@ -137,6 +137,8 @@ class Lexer
 
             '!'  => Tokens::T_NOT,
             '|'  => Tokens::T_PIPE,
+
+            '='  => Tokens::T_ASSIGN,
         ];
 
         static $caseInsensitiveTokenMapping = [
