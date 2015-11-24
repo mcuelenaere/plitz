@@ -42,9 +42,10 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
      * @dataProvider provideYamlCases
      * @param string $language
      * @param string $template
-     * @param string $expectedOutput
+     * @param string|null $expectedOutput
+     * @param string|null $expectedExceptionMessage
      */
-    public function testYamlCases($language, $template, $expectedOutput)
+    public function testYamlCases($language, $template, $expectedOutput, $expectedExceptionMessage = null)
     {
         // write template to input stream
         fwrite($this->inputStream, $template);
@@ -65,12 +66,22 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
         }
 
         $parser = new Parser($this->lexer->lex(), $compiler);
-        $parser->parse();
+        try {
+            $parser->parse();
+        } catch (\Exception $ex) {
+            if ($expectedExceptionMessage !== null) {
+                $this->assertStringMatchesFormat($expectedExceptionMessage, $ex->getMessage());
+            } else {
+                throw $ex;
+            }
+        }
 
-        // rewind output stream
-        fseek($this->outputStream, 0, SEEK_SET);
+        if ($expectedOutput !== null) {
+            // rewind output stream
+            fseek($this->outputStream, 0, SEEK_SET);
 
-        $this->assertEquals($expectedOutput, fread($this->outputStream, strlen($expectedOutput)));
+            $this->assertEquals($expectedOutput, stream_get_contents($this->outputStream));
+        }
     }
 
     public function provideYamlCases()
@@ -80,7 +91,8 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
             yield basename($file) => [
                 $parsed['language'],
                 $parsed['template'],
-                $parsed['output']
+                isset($parsed['output']) ? $parsed['output'] : null,
+                isset($parsed['exception']) ? $parsed['exception'] : null
             ];
         }
     }
