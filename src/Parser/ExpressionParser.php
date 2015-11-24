@@ -183,12 +183,42 @@ class ExpressionParser
             // eat open paren
             $this->tokenStream->next();
 
+            $allowParsingScope = false;
+            $disallowArguments = false;
+            if ($name === 'include') {
+                $allowParsingScope = true;
+            }
+
             $arguments = [];
+            $scope = [];
             do {
                 list($token, ) = $this->tokenStream->current();
 
                 if ($token !== Tokens::T_CLOSE_PAREN) {
-                    $arguments[] = $this->parseExpression();
+                    $expression = $this->parseExpression();
+
+                    list($token, ) = $this->tokenStream->current();
+                    if ($token === Tokens::T_ASSIGN && $allowParsingScope) {
+                        if (!($expression instanceof Expressions\Variable)) {
+                            $message = sprintf("Expected include() scope key to be a literal, but got %s instead", get_class($expression));
+                            throw ParseException::createParseException($message, $this->tokenStream);
+                        }
+
+                        // eat assignment token
+                        $this->tokenStream->next();
+
+                        // parse this as a scope inclusion
+                        $scope[$expression->getVariableName()] = $this->parseExpression();
+
+                        // from now on, we can only parse scope inclusions and no more arguments
+                        $disallowArguments = true;
+                    } else if ($disallowArguments) {
+                        // no more arguments were allowed, yet we still received one
+                        throw ParseException::createInvalidTokenException([Tokens::T_ASSIGN], $this->tokenStream);
+                    } else {
+                        // parse this as a normal argument
+                        $arguments[] = $expression;
+                    }
 
                     list($token, ) = $this->tokenStream->current();
                     if ($token !== Tokens::T_COMMA && $token !== Tokens::T_CLOSE_PAREN) {
@@ -200,7 +230,16 @@ class ExpressionParser
                 $this->tokenStream->next();
             } while ($token !== Tokens::T_CLOSE_PAREN);
 
-            $expression = new Expressions\MethodCall($name, $arguments);
+            if ($name === 'include') {
+                if (count($arguments) !== 1) {
+                    $message = sprintf("Expected include() expression to have 1 argument, but got %d instead", count($arguments));
+                    throw ParseException::createParseException($message, $this->tokenStream);
+                }
+
+                $expression = new Expressions\ScopedInclude($arguments[0], $scope);
+            } else {
+                $expression = new Expressions\MethodCall($name, $arguments);
+            }
 
             list($token, ) = $this->tokenStream->current();
         } else {

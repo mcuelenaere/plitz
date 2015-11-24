@@ -1,0 +1,42 @@
+template: |
+        {{ include('normal-include.tpl') }}
+        {{ include('scoped-include.tpl', scope=$scope, a=$scope.a) }}
+        {{ include('scoped-include.tpl',  scope   =   $_ , a = $_top.a   ) }}
+visitor:
+    - startOfStream: []
+    - printBlock:
+        - ScopedIncludeExpression:
+            included:
+              ScalarExpression: {"value": "normal-include.tpl"}
+            scope: {}
+    - raw:
+        - "\n"
+    - printBlock:
+        - ScopedIncludeExpression:
+            included:
+              ScalarExpression: {"value": "scoped-include.tpl"}
+            scope:
+              scope:
+                VariableExpression: {"variableName": "scope"}
+              a:
+                GetAttributeExpression:
+                  attributeName: "a"
+                  expression:
+                    VariableExpression: {"variableName": "scope"}
+    - raw:
+        - "\n"
+    - printBlock:
+        - ScopedIncludeExpression:
+            included:
+              ScalarExpression: {"value": "scoped-include.tpl"}
+            scope:
+              scope:
+                VariableExpression: {"variableName": "_"}
+              a:
+                GetAttributeExpression:
+                  attributeName: "a"
+                  expression:
+                    VariableExpression: {"variableName": "_top"}
+    - raw:
+        - "\n"
+    - endOfStream: []
