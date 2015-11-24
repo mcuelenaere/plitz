@@ -128,7 +128,14 @@ class ExpressionParser
                 return new Expressions\Unary($this->parsePrimaryExpression(), Expressions\Unary::OPERATION_NOT);
             case Tokens::T_MINUS:
                 $this->tokenStream->next();
-                return new Expressions\Unary($this->parsePrimaryExpression(), Expressions\Unary::OPERATION_NEGATE);
+
+                $expression = $this->parsePrimaryExpression();
+                if ($expression instanceof Expressions\Scalar && is_numeric($expression->getValue())) {
+                    // fold this into a single scalar expression
+                    return new Expressions\Scalar(-1 * $expression->getValue());
+                }
+
+                return new Expressions\Unary($expression, Expressions\Unary::OPERATION_NEGATE);
             case Tokens::T_PLUS:
                 $this->tokenStream->next();
                 return $this->parsePrimaryExpression();
