@@ -30,16 +30,20 @@ trait ResolveIncludeTrait
         $filehandle = fopen($filename, "r");
         assert(is_resource($filehandle));
 
-        // make sure we don't write a new function header + footer
-        $oldDisableFunctionBoilerPlate = $this->disableFunctionBoilerplate;
-        $this->disableFunctionBoilerplate = true;
+        try {
+            // make sure we don't write a new function header + footer
+            $oldDisableFunctionBoilerPlate = $this->disableFunctionBoilerplate;
+            $this->disableFunctionBoilerplate = true;
 
-        $lexer = new Lexer($filehandle, $filename);
-        $parser = new Parser($lexer->lex(), $this);
+            $lexer = new Lexer($filehandle, $filename);
+            $parser = new Parser($lexer->lex(), $this);
 
-        $this->comment('@@START OF TEMPLATE ' . $filename . ' @@');
-        $parser->parse();
-        $this->comment('@@END OF TEMPLATE ' . $filename . ' @@');
+            $this->comment('@@START OF TEMPLATE ' . $filename . ' @@');
+            $parser->parse();
+            $this->comment('@@END OF TEMPLATE ' . $filename . ' @@');
+        } finally {
+            fclose($filehandle);
+        }
 
         $this->disableFunctionBoilerplate = $oldDisableFunctionBoilerPlate;
     }
