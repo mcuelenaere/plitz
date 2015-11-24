@@ -1,0 +1,5 @@
+template: |
+        {{ include('normal-include.tpl', a=$a, "2nd argument") }}
+visitor:
+    - startOfStream: []
+    - exception: Expected T_ASSIGN, but got T_CLOSE_PAREN instead at %s:1:54

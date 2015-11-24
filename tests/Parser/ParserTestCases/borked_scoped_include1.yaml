@@ -1,0 +1,5 @@
+template: |
+        {{ include('normal-include.tpl', "not_a_literal"=$a) }}
+visitor:
+    - startOfStream: []
+    - exception: Expected include() scope key to be a literal, but got Plitz\Parser\Expressions\Scalar instead

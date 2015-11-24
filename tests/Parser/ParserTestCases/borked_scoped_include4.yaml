@@ -1,0 +1,5 @@
+template: |
+        {{ include("file.tpl", "2nd argument") }}
+visitor:
+    - startOfStream: []
+    - exception: Expected include() expression to have 1 argument, but got 2 instead

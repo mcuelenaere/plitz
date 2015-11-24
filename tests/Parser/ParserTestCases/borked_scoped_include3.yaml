@@ -1,0 +1,5 @@
+template: |
+        {{ include(a=$a, b=$b) }}
+visitor:
+    - startOfStream: []
+    - exception: Expected include() expression to have 1 argument, but got 0 instead
