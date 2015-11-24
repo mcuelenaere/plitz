@@ -1,0 +1,4 @@
+language: PHP
+template: |
+    {{ include('scoped-include.tpl', scope=$scope, a=$scope.a) }}
+exception: PhpCompiler does not support scoped inclusions

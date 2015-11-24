@@ -160,6 +160,8 @@ class PhpCompiler implements Visitor
             if ($showParens) {
                 fwrite($this->output, ")");
             }
+        } else if ($expr instanceof Expressions\ScopedInclude) {
+            throw new \UnexpectedValueException("PhpCompiler does not support scoped inclusions");
         } else if ($expr instanceof Expressions\MethodCall) {
             fwrite($this->output, $expr->getMethodName() . "(");
             $arguments = $expr->getArguments();

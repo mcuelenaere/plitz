@@ -194,6 +194,8 @@ class JsCompiler implements Visitor
             if ($showParens) {
                 $this->codeEmitter->raw(')');
             }
+        } else if ($expr instanceof Expressions\ScopedInclude) {
+            throw new \UnexpectedValueException("JsCompiler does not support scoped inclusions");
         } else if ($expr instanceof Expressions\MethodCall) {
             $this->codeEmitter->raw('helpers' . $this->createJsVariableDereference($expr->getMethodName()) . '(');
             $arguments = $expr->getArguments();

@@ -1,0 +1,4 @@
+language: JS
+template: |
+    {{ include('scoped-include.tpl', scope=$scope, a=$scope.a) }}
+exception: JsCompiler does not support scoped inclusions
