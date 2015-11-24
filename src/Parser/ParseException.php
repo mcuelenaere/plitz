@@ -1,6 +1,8 @@
 <?php
 namespace Plitz\Parser;
 
+use Plitz\Lexer\TokenStream;
+
 class ParseException extends \LogicException
 {
     /**
@@ -74,6 +76,16 @@ class ParseException extends \LogicException
             $message = sprintf("Expected %s or %s, but got %s instead at %s:%d:%d", $expectedTokens[0], $expectedTokens[1], $actualToken, $tokenStream->getSource(), $tokenStream->getLine(), $tokenStream->getColumn());
         }
 
+        return self::createParseException($message, $tokenStream);
+    }
+
+    /**
+     * @param string $message
+     * @param TokenStream $tokenStream
+     * @return ParseException
+     */
+    public static function createParseException($message, TokenStream $tokenStream)
+    {
         return new ParseException($message, $tokenStream->getSource(), $tokenStream->getLine(), $tokenStream->getColumn());
     }
 }
