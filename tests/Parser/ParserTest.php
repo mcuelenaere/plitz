@@ -2,6 +2,7 @@
 namespace Plitz\Tests\Parser;
 
 use Plitz\Lexer\Lexer;
+use Plitz\Parser\ParseException;
 use Plitz\Parser\Parser;
 use Symfony\Component\Yaml\Yaml;
 
@@ -76,9 +77,19 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
         // build expected chain
         $expectedCallChain = [];
+        $expectedException = null;
         foreach ($expectedVisitorCalls as $visitorCall) {
+            if ($expectedException !== null) {
+                throw new \InvalidArgumentException("Test contains expected method calls after exception was thrown!");
+            }
+
             $methodName = key($visitorCall);
             $methodArgs = current($visitorCall);
+
+            if ($methodName === 'exception') {
+                $expectedException = $methodArgs;
+                continue;
+            }
 
             $expectedCallChain[] = [
                 'method' => $methodName,
@@ -89,7 +100,15 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         // build parser & lex+parse
         $visitor = new ArrayVisitor();
         $parser = new Parser($lexer->lex(), $visitor);
-        $parser->parse();
+        try {
+            $parser->parse();
+        } catch (ParseException $ex) {
+            if ($expectedException !== null) {
+                $this->assertStringMatchesFormat($expectedException, $ex->getMessage());
+            } else {
+                throw $ex;
+            }
+        }
 
         $this->assertEquals($expectedCallChain, $visitor->getCalls());
     }
