@@ -19,7 +19,8 @@
 		"phpunit/phpunit": "~4.0",
 		"mockery/mockery": "~0.9",
 		"symfony/yaml": "~2.6",
-		"satooshi/php-coveralls": "~0.6"
+		"satooshi/php-coveralls": "~0.6",
+		"php-vfs/php-vfs": "~1.3"
 	},
 	"extra": {
 		"branch-alias": {

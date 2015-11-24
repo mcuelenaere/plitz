@@ -6,6 +6,7 @@ use Plitz\Bindings\Blitz\PhpCompiler;
 use Plitz\Lexer\Lexer;
 use Plitz\Parser\Parser;
 use Symfony\Component\Yaml\Yaml;
+use VirtualFileSystem\FileSystem;
 
 class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,10 +25,16 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
      */
     private $lexer;
 
+    /**
+     * @var FileSystem
+     */
+    private $vfs;
+
     protected function setUp()
     {
         $this->inputStream = fopen("php://temp", "r+");
         $this->outputStream = fopen("php://temp", "r+");
+        $this->vfs = new FileSystem();
         $this->lexer = new Lexer($this->inputStream);
     }
 
@@ -133,19 +140,33 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param array $includes
+     */
+    protected function setupIncludes(array $includes)
+    {
+        foreach ($includes as $name => $contents) {
+            $this->vfs->createFile('/' . $name, $contents);
+        }
+    }
+
+    /**
      * @dataProvider provideYamlCases
      * @param string $template
      * @param array $assignments
+     * @param array $includes
      * @param string $expectedOutput
      */
-    public function testYamlCasesForPhp($template, array $assignments, $expectedOutput)
+    public function testYamlCasesForPhp($template, array $assignments, array $includes, $expectedOutput)
     {
+        // write includes to VFS
+        $this->setupIncludes($includes);
+
         // write template to input stream
         fwrite($this->inputStream, $template);
         fseek($this->inputStream, 0, SEEK_SET);
 
         $blitzMock = \Mockery::mock('\\Plitz\\Bindings\\Blitz\\Blitz');
-        $compiler = new PhpCompiler($this->outputStream, "notavailable://not-available", $blitzMock);
+        $compiler = new PhpCompiler($this->outputStream, $this->vfs->path('/'), $blitzMock);
         $parser = new Parser($this->lexer->lex(), $compiler);
         $parser->parse();
 
@@ -163,20 +184,24 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
      * @dataProvider provideYamlCases
      * @param string $template
      * @param array $assignments
+     * @param array $includes
      * @param string $expectedOutput
      */
-    public function testYamlCasesForJs($template, array $assignments, $expectedOutput)
+    public function testYamlCasesForJs($template, array $assignments, array $includes, $expectedOutput)
     {
         $nodeJsPath = self::findNodeJsBinary();
         if ($nodeJsPath === null) {
             $this->markTestSkipped("Could not find Node.js binary");
         }
 
+        // write includes to VFS
+        $this->setupIncludes($includes);
+
         // write template to input stream
         fwrite($this->inputStream, $template);
         fseek($this->inputStream, 0, SEEK_SET);
 
-        $compiler = new JsCompiler($this->outputStream, "notavailable://not-available");
+        $compiler = new JsCompiler($this->outputStream, $this->vfs->path('/'));
         $parser = new Parser($this->lexer->lex(), $compiler);
         $parser->parse();
 
@@ -197,6 +222,7 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
             yield basename($file) => [
                 $parsed['template'],
                 $parsed['assignments'],
+                isset($parsed['includes']) ? $parsed['includes'] : [],
                 $parsed['output']
             ];
         }
