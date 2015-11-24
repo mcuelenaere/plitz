@@ -1,0 +1,9 @@
+language: Blitz
+template: |
+    {{ include('normal-include.tpl') }}
+    {{ include('scoped-include.tpl', scope=$scope, a=$scope.a) }}
+    {{ include('scoped-include.tpl',  scope   =   $_ , a = $_top.a   ) }}
+output: |
+    {{ include('normal-include.tpl') }}
+    {{ include('scoped-include.tpl', scope=scope, a=scope.a) }}
+    {{ include('scoped-include.tpl', scope=_, a=_top.a) }}

@@ -125,6 +125,23 @@ class BlitzCompiler implements Visitor
             if (!$omitParens) {
                 fwrite($this->output, ")");
             }
+        } else if ($expr instanceof Expressions\ScopedInclude) {
+            fwrite($this->output, "include(");
+            $this->expression($expr->getIncluded(), true);
+            $scope = $expr->getScope();
+            if (!empty($scope)) {
+                fwrite($this->output, ", ");
+                $firstIteration = true;
+                foreach ($scope as $key => $value) {
+                    if (!$firstIteration) {
+                        fwrite($this->output, ", ");
+                    }
+                    fprintf($this->output, "%s=", $key);
+                    $this->expression($value, true);
+                    $firstIteration = false;
+                }
+            }
+            fwrite($this->output, ")");
         } else if ($expr instanceof Expressions\MethodCall) {
             fwrite($this->output, $expr->getMethodName() . "(");
             $arguments = $expr->getArguments();
