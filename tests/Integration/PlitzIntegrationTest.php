@@ -174,6 +174,8 @@ class PlitzIntegrationTest extends \PHPUnit_Framework_TestCase
         fseek($this->outputStream, 0, SEEK_SET);
         $phpCode = stream_get_contents($this->outputStream);
 
+        print($phpCode);
+
         // evaluate generated PHP code
         $output = $this->executePhpCode($phpCode, $assignments);
 

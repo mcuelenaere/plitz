@@ -130,7 +130,7 @@ class JsCompiler extends \Plitz\Compilers\JsCompiler
             $this->expression($value->getArguments()[1]);
             $this->codeEmitter->raw(';')->newline();
             return;
-        } else if ($value instanceof Expressions\MethodCall && $value->getMethodName() === 'include') {
+        } else if ($value instanceof Expressions\ScopedInclude) {
             $this->resolveIncludeCall($value);
             return;
         }
@@ -170,6 +170,17 @@ class JsCompiler extends \Plitz\Compilers\JsCompiler
                 $this->codeEmitter->raw('\"\"');
             }
             $this->codeEmitter->raw(')');
+        } else if ($expr instanceof Expressions\MethodCall && $expr->getMethodName() === 'set') {
+            assert(count($expr->getArguments()) === 2);
+            assert($expr->getArguments()[0] instanceof Expressions\Scalar);
+            list($key, $value) = $expr->getArguments();
+
+            $this->codeEmitter->raw('(');
+            parent::expression(new Expressions\Variable($key->getValue()));
+            $this->codeEmitter->raw(' = ');
+            $this->expression($value);
+            $this->codeEmitter->raw(', "")');
+            return;
         } else {
             parent::expression($expr);
         }

@@ -37,7 +37,7 @@ class PhpCompiler extends \Plitz\Compilers\PhpCompiler
             $this->expression($value->getArguments()[1]);
             fwrite($this->output, '; ?>');
             return;
-        } else if ($value instanceof Expressions\MethodCall && $value->getMethodName() === 'include') {
+        } else if ($value instanceof Expressions\ScopedInclude) {
             $this->resolveIncludeCall($value);
             return;
         }
@@ -52,35 +52,21 @@ class PhpCompiler extends \Plitz\Compilers\PhpCompiler
      */
     protected function convertGetAttributeToFetchPropertyCall(Expressions\GetAttribute $expr)
     {
-        $baseExpr = $expr->getExpression();
-        if (
-            $baseExpr instanceof Expressions\Variable &&
-            !in_array($baseExpr->getVariableName(), ['_parent', '_top', '_'])
-        ) {
-            // make sure we use fetchProperty() to dereference the variable, instead of doing a normal array dereference
-            $properties = [
-                new Expressions\Variable('_'),
-                new Expressions\Scalar($baseExpr->getVariableName())
-            ];
-        } else {
-            $properties = [
-                $baseExpr
-            ];
-        }
+        $stack = [];
 
         while ($expr instanceof Expressions\GetAttribute) {
-            // don't pass the "magic" attributes to fetchProperty()
-            if (in_array($expr->getAttributeName(), ['_parent', '_top'])) {
-                $properties[] = $expr;
-                $expr = $expr->getExpression();
-                continue;
-            }
-
-            $properties[] = new Expressions\Scalar($expr->getAttributeName());
+            array_unshift($stack, new Expressions\Scalar($expr->getAttributeName()));
             $expr = $expr->getExpression();
         }
 
-        return new Expressions\MethodCall('\\Plitz\\Bindings\\Blitz\\TemplateFunctions::fetchProperty', $properties);
+        if (!$expr instanceof Expressions\Variable) {
+            throw new \UnexpectedValueException("GetAttribute expression should only be possible on a Variable expression");
+        }
+
+        // add the inner variable as well
+        array_unshift($stack, $expr);
+
+        return new Expressions\MethodCall('\\Plitz\\Bindings\\Blitz\\TemplateFunctions::fetchProperty', $stack);
     }
 
     protected function expression(Expression $expr)
@@ -136,6 +122,17 @@ class PhpCompiler extends \Plitz\Compilers\PhpCompiler
                     new Expressions\Scalar(ENT_QUOTES),
                     new Expressions\Scalar(ini_get('default_charset'))
                 ]);
+            } else if ($expr->getMethodName() === 'set') {
+                assert(count($expr->getArguments()) === 2);
+                assert($expr->getArguments()[0] instanceof Expressions\Scalar);
+                list($key, $value) = $expr->getArguments();
+
+                fwrite($this->output, '(');
+                parent::expression(new Expressions\Variable($key->getValue()));
+                fwrite($this->output, ' = ');
+                $this->expression($value);
+                fwrite($this->output, ')');
+                return;
             } else {
                 // TODO: support configurable method lookup order
 

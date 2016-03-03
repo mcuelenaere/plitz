@@ -1,0 +1,82 @@
+template: |
+  Global top = {{ json_encode($_top) }}
+
+  {{ BEGIN arr }}
+  {{ include('include-scope-inner.tpl') }}
+  {{ END arr }}
+
+  Specific scoped loop:
+
+  {{ BEGIN arr }}
+  {{ include('include-scope-inner.tpl',   scope  =    $scope ,   a = $scope.a   ) }}
+  {{ END arr }}
+
+  Current scoped loop:
+
+  {{ BEGIN arr }}
+  {{ include('include-scope-inner.tpl',  scope   =   $_ , a = $_top.a   ) }}
+  {{ END arr }}
+
+  How deep?
+
+  {{ BEGIN arr }}
+  {{ include('print-scope.tpl', foo=$_top.deep.deep.deeply.nested, bar=$_parent.deep.deep.deeply.nested) }}
+  {{ END arr }}
+includes:
+  include-scope-inner.tpl: |
+    a = {{$a}}, b = {{$b}}
+    top = {{ json_encode($_top) }}
+    current = {{ json_encode($_) }}
+  print-scope.tpl: |
+    {{ json_encode($_) }}
+assignments:
+  arr:
+    - a: "1-a"
+      b: "1-b"
+    - a: "2-a"
+      b: "2-b"
+  scope:
+    a: "scope-a"
+  deep:
+    deep:
+      deeply:
+        nested: "very deep"
+  a: "top-a"
+output: |
+  Global top = {"arr":[{"a":"1-a","b":"1-b"},{"a":"2-a","b":"2-b"}],"scope":{"a":"scope-a"},"a":"top-a"}
+
+  a = 1-a, b = 1-b
+  top = {"a":"1-a","b":"1-b"}
+  current = {"a":"1-a","b":"1-b"}
+
+  a = 2-a, b = 2-b
+  top = {"a":"2-a","b":"2-b"}
+  current = {"a":"2-a","b":"2-b"}
+
+
+  Specific scoped loop:
+
+  a = scope-a, b = 1-b
+  top = {"scope":{"a":"scope-a"},"a":"scope-a","b":"1-b"}
+  current = {"scope":{"a":"scope-a"},"a":"scope-a","b":"1-b"}
+
+  a = scope-a, b = 2-b
+  top = {"scope":{"a":"scope-a"},"a":"scope-a","b":"2-b"}
+  current = {"scope":{"a":"scope-a"},"a":"scope-a","b":"2-b"}
+
+
+  Current scoped loop:
+
+  a = top-a, b = 1-b
+  top = {"scope":{"a":"1-a","b":"1-b"},"a":"top-a","b":"1-b"}
+  current = {"scope":{"a":"1-a","b":"1-b"},"a":"top-a","b":"1-b"}
+
+  a = top-a, b = 2-b
+  top = {"scope":{"a":"2-a","b":"2-b"},"a":"top-a","b":"2-b"}
+  current = {"scope":{"a":"2-a","b":"2-b"},"a":"top-a","b":"2-b"}
+
+  How deep?
+
+  {"foo": "very deep", "bar": "very deep"}
+
+  {"foo": "very deep", "bar": "very deep"}

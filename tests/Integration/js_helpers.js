@@ -259,6 +259,9 @@
 
                 return hash_map[ent];
             });
+        },
+        json_encode: function json_encode(value) {
+            return JSON.stringify(value);
         }
     };
 })();
