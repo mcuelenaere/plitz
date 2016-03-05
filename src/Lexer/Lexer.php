@@ -157,7 +157,7 @@ class Lexer
 
             $found = false;
             foreach ($caseInsensitiveTokenMapping as $string => $token) {
-                if (self::startsWithCaseInsensitive($string)) {
+                if (self::equalsToCaseInsensitive($string)) {
                     yield [$token, null];
                     $this->consume(strlen($string));
                     $found = true;
@@ -195,10 +195,10 @@ class Lexer
             } else if (preg_match('|^(["\'])([^"\']*)\\1|', $this->buffer, $m)) {
                 yield [Tokens::T_STRING, $m[2]];
                 $this->consume(strlen($m[2]) + 2);
-            } else if (self::startsWithCaseInsensitive('true')) {
+            } else if (self::equalsToCaseInsensitive('true')) {
                 yield [Tokens::T_BOOL, true];
                 $this->consume(4);
-            } else if (self::startsWithCaseInsensitive('false')) {
+            } else if (self::equalsToCaseInsensitive('false')) {
                 yield [Tokens::T_BOOL, false];
                 $this->consume(5);
             } else if (preg_match('|^([A-z0-9$]+)|', $this->buffer, $m)) {
@@ -224,9 +224,9 @@ class Lexer
         }
     }
 
-    private function startsWithCaseInsensitive($text)
+    private function equalsToCaseInsensitive($text)
     {
-        return strncasecmp($this->buffer, $text, strlen($text)) === 0;
+        return preg_match('|^' . preg_quote($text, '|') . '[^a-z0-9]|i', $this->buffer);
     }
 
     private function startsWith($text)

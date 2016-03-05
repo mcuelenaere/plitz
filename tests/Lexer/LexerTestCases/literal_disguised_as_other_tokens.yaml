@@ -1,0 +1,51 @@
+message: |
+    {{ BEGIN loop }}
+    {{ endVariable }}
+    {{ END }}
+    {{ truefalse }}{{ true }}
+    {{ falsetrue }}{{false}}
+    {{true,false}}
+    {{ orand and or }}
+
+flow:
+    - token: T_BLOCK_BEGIN
+    - token: T_LITERAL
+      value: loop
+    - token: T_RAW
+      text: "\n"
+    - token: T_LITERAL
+      value: endVariable
+    - token: T_RAW
+      text: "\n"
+    - token: T_BLOCK_END
+    - token: T_RAW
+      text: "\n"
+
+    - token: T_LITERAL
+      value: trueFalse
+    - token: T_BOOL
+      value: true
+    - token: T_RAW
+      text: "\n"
+
+    - token: T_LITERAL
+      value: falseTrue
+    - token: T_BOOL
+      value: false
+    - token: T_RAW
+      text: "\n"
+
+    - token: T_BOOL
+      value: true
+    - token: T_COMMA
+    - token: T_BOOL
+      value: false
+    - token: T_RAW
+      text: "\n"
+
+    - token: T_LITERAL
+      value: orand
+    - token: T_AND
+    - token: T_OR
+    - token: T_RAW
+      text: "\n"
