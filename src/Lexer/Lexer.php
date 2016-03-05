@@ -189,7 +189,11 @@ class Lexer
                 break;
             } else if (preg_match('|^([0-9\.]+)|', $this->buffer, $m)) {
                 // TODO: validate whether this is a correct number
-                $number = floatval($m[1]);
+                if (strpos($m[1], '.') === false) {
+                    $number = intval($m[1]);
+                } else {
+                    $number = floatval($m[1]);
+                }
                 yield [Tokens::T_NUMBER, $number];
                 $this->consume(strlen($m[1]));
             } else if (preg_match('|^(["\'])([^"\']*)\\1|', $this->buffer, $m)) {
