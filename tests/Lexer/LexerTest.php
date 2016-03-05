@@ -46,9 +46,9 @@ class LexerTest extends \PHPUnit_Framework_TestCase
 
                 $this->assertArrayHasKey($index, $flow, "Unexpected token $token found");
 
-                $this->assertEquals($flow[$index]['token'], $token, 'Token at line ' . $lexStream->getLine() . ' was not the same as expected');
+                $this->assertEquals($flow[$index]['token'], $token, 'Token at line ' . $lexStream->getLine() . ':' . $lexStream->getColumn() . ' was not the same as expected');
                 if (isset($flow[$index]['text'])) {
-                    $this->assertEquals($flow[$index]['text'], $value, 'Value at line ' . $lexStream->getLine() . ' was not the same as expected');
+                    $this->assertEquals($flow[$index]['text'], $value, 'Value at line ' . $lexStream->getLine() . ':' . $lexStream->getColumn() . ' was not the same as expected');
                 }
                 $index++;
             }
