@@ -112,14 +112,18 @@ class JsCompiler implements Visitor
             ->raw(';')
             ->newline();
 
+        // Blitz supports looping over arrays and objects.
+        // When looping over an object however, this just creates a new context instead using that object as the scope.
+        // So we have this ugly hack where we check at runtime whether the given variable is an array or an object and
+        // perform different behaviour if so.
         $this->codeEmitter
-            ->line("if (!!{$loopVariable} && {$loopVariable}.constructor === Array) {")
+            ->line("if (!!{$loopVariable} && ({$loopVariable}.constructor === Array || typeof {$loopVariable} === 'object')) {")
             ->indent();
 
         $this->codeEmitter
-            ->line("for (var {$indexVariable} = 0; {$indexVariable} < {$loopVariable}.length; {$indexVariable}++) {")
+            ->line("for (var {$indexVariable} = 0; ({$loopVariable}.constructor === Array) ? {$indexVariable} < {$loopVariable}.length : {$indexVariable} < 1; {$indexVariable}++) {")
             ->indent()
-            ->line("var {$newContext} = {$loopVariable}[{$indexVariable}];")
+            ->line("var {$newContext} = ({$loopVariable}.constructor === Array) ? {$loopVariable}[{$indexVariable}] : {$loopVariable};")
             ->newline();
 
         $this->contextCounter++;
